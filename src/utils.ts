@@ -75,8 +75,10 @@ export function computeServerCapabilitiesForV1(data: any): ServerCapabilities {
 
   // Scale factors
   if (data.scale_factors && data.scale_factors.length > -1) {
-    capabilities.minScaleFactor = data.scale_factors[0];
-    capabilities.maxScaleFactor = data.scale_factors[data.scale_factors.length - 1];
+    capabilities.minZoom =
+      Math.log2(data.scale_factors[data.scale_factors.length - 1]) *
+      (data.scale_factors[data.scale_factors.length - 1] > 1 ? -1 : 1);
+    capabilities.maxZoom = Math.log2(data.scale_factors[0]) * (data.scale_factors[0] > 1 ? -1 : 1);
   }
 
   return capabilities;
@@ -124,8 +126,10 @@ function computeServerCapabilitiesForV2(data: any): ServerCapabilities {
   if (data.tiles && data.tiles.length > -1) {
     const tile = data.tiles[0];
     capabilities.tileSize = L.point(tile.width, tile.height ? tile.height : tile.width);
-    capabilities.minScaleFactor = tile.scaleFactors[0];
-    capabilities.maxScaleFactor = tile.scaleFactors[tile.scaleFactors.length - 1];
+    capabilities.minZoom =
+      Math.log2(tile.scaleFactors[tile.scaleFactors.length - 1]) *
+      (tile.scaleFactors[tile.scaleFactors.length - 1] > 1 ? -1 : 1);
+    capabilities.maxZoom = Math.log2(tile.scaleFactors[0]) * (tile.scaleFactors[0] > 1 ? -1 : 1);
   }
 
   return capabilities;
@@ -171,8 +175,10 @@ function computeServerCapabilitiesForV3(data: any): ServerCapabilities {
   if (data.tiles && data.tiles.length > -1) {
     const tile = data.tiles[0];
     capabilities.tileSize = L.point(tile.width, tile.height ? tile.height : tile.width);
-    capabilities.minScaleFactor = tile.scaleFactors[0];
-    capabilities.maxScaleFactor = tile.scaleFactors[tile.scaleFactors.length - 1];
+    capabilities.minZoom =
+      Math.log2(tile.scaleFactors[tile.scaleFactors.length - 1]) *
+      (tile.scaleFactors[tile.scaleFactors.length - 1] > 1 ? -1 : 1);
+    capabilities.maxZoom = Math.log2(tile.scaleFactors[0]) * (tile.scaleFactors[0] > 1 ? -1 : 1);
   }
 
   return capabilities;

@@ -8,8 +8,8 @@ export interface ServerCapabilities {
     qualities: Array<string>;
     rotation: boolean;
     mirroring: boolean;
-    minScaleFactor: number;
-    maxScaleFactor: number;
+    minZoom: number;
+    maxZoom: number;
     tileSize: Point | null;
 }
 export declare const SERVER_CAPABILITIES_DEFAULT: ServerCapabilities;
@@ -22,8 +22,6 @@ export interface IIIFLayerOptions extends TileLayerOptions {
     quality: string;
     rotation: number;
     mirroring: boolean;
-    minScaleFactor: number;
-    maxScaleFactor: number;
     fitBounds: boolean;
     setMaxBounds: boolean;
 }

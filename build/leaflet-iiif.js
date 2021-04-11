@@ -89,9 +89,9 @@ class IIIFLayer extends leaflet_1.TileLayer {
                 {
                     tileSize: this.server.tileSize,
                     tileFormat: this.server.formats[0],
-                    quality: this.server.qualities[0],
-                    minScaleFactor: this.server.minScaleFactor,
-                    maxScaleFactor: this.server.maxScaleFactor,
+                    quality: this.server.qualities.includes("native") ? "native" : "default",
+                    minZoom: this.server.minZoom,
+                    maxZoom: this.server.maxZoom,
                 }, 
                 // User's options
                 options);
@@ -147,16 +147,17 @@ class IIIFLayer extends leaflet_1.TileLayer {
         const zoomLayer = this.zoomLayers.find(layer => layer.zoom === z);
         if (!zoomLayer)
             throw new Error(`Can't create tile for zoom ${z}`);
-        const minX = x * this.options.tileSize.x * zoomLayer.scale;
-        const minY = y * this.options.tileSize.y * zoomLayer.scale;
-        const maxX = Math.min(minX + this.options.tileSize.x * zoomLayer.scale, this.width);
-        const maxY = Math.min(minY + this.options.tileSize.y * zoomLayer.scale, this.height);
+        // COmpute the image region / bbox
+        const minX = (x * this.options.tileSize.x) / zoomLayer.scale;
+        const minY = (y * this.options.tileSize.y) / zoomLayer.scale;
+        const maxX = Math.min(minX + this.options.tileSize.x / zoomLayer.scale, this.width);
+        const maxY = Math.min(minY + this.options.tileSize.y / zoomLayer.scale, this.height);
         const params = {
             format: this.options.tileFormat,
             quality: this.options.quality,
             rotation: this.options.rotation,
             mirroring: this.options.mirroring ? "!" : "",
-            size: [maxX - minX, maxY - minY].map(s => Math.ceil(s / zoomLayer.scale)).join(","),
+            size: [maxX - minX, maxY - minY].map(s => Math.ceil(s * zoomLayer.scale)).join(","),
             region: [minX, minY, maxX - minX, maxY - minY].join(","),
         };
         return leaflet_1.default.Util.template(this._url, params);
@@ -191,43 +192,22 @@ class IIIFLayer extends leaflet_1.TileLayer {
      */
     computeZoomLayers() {
         this.zoomLayers = [];
-        let scale = this.options.minScaleFactor;
-        while (scale <= this.options.maxScaleFactor) {
-            const height = Math.ceil(this.height / scale);
-            const width = Math.ceil(this.width / scale);
+        let zoom = this.options.minZoom;
+        while (zoom <= this.options.maxZoom) {
+            const scale = Math.pow(2, zoom);
+            const height = Math.ceil(this.height * scale);
+            const width = Math.ceil(this.width * scale);
             this.zoomLayers.push({
-                zoom: 0,
+                zoom,
                 scale,
                 height,
                 width,
                 tiles: [Math.ceil(width / this.options.tileSize.x), Math.ceil(height / this.options.tileSize.y)],
             });
-            // next scale value
-            // construct the series 1/8, 1/4, 1/2, 1, 2, 4
-            if (scale < 1) {
-                const denominator = Math.ceil(1 / scale);
-                if (denominator === 2)
-                    scale = 1;
-                else
-                    scale = 1 / (denominator * 2);
-            }
-            else {
-                scale = scale * 2;
-            }
+            zoom++;
         }
-        // Reverse the order, so first entries will be the zoom out
-        this.zoomLayers.reverse();
-        // Change the zoom axis where 0 is scale 1 (original dim)
-        // At the end we should have some like -2, -1, 0, 1, 2 for the zoom
-        const indexOfScale1 = this.zoomLayers.findIndex(layer => layer.scale === 1);
-        this.zoomLayers = this.zoomLayers.map((layer, index) => {
-            layer.zoom = index - indexOfScale1;
-            return layer;
-        });
         // Setting the min /max zoom in the options & map
-        this.options.maxZoom = this.zoomLayers[this.zoomLayers.length - 1].zoom;
         this.map.setMaxZoom(this.zoomLayers[this.zoomLayers.length - 1].zoom);
-        this.options.minZoom = this.zoomLayers[0].zoom;
         this.map.setMinZoom(this.zoomLayers[0].zoom);
     }
 }
@@ -14320,8 +14300,8 @@ exports.SERVER_CAPABILITIES_DEFAULT = {
     rotation: false,
     mirroring: false,
     tileSize: null,
-    minScaleFactor: 1,
-    maxScaleFactor: 1,
+    minZoom: 0,
+    maxZoom: 0,
 };
 exports.DEFAULT_OPTIONS = {
     tileSize: leaflet_1.default.point(256, 256),
@@ -14329,12 +14309,10 @@ exports.DEFAULT_OPTIONS = {
     quality: "default",
     rotation: 0,
     mirroring: false,
-    minScaleFactor: 1,
-    maxScaleFactor: 1,
     fitBounds: true,
     setMaxBounds: false,
     minZoom: 0,
-    maxZoom: 10,
+    maxZoom: 0,
     zoomOffset: 0,
 };
 
@@ -14422,8 +14400,10 @@ function computeServerCapabilitiesForV1(data) {
         capabilities.tileSize = leaflet_1.default.point(data.tile_width, data.tile_height ? data.tile_height : data.tile_width);
     // Scale factors
     if (data.scale_factors && data.scale_factors.length > -1) {
-        capabilities.minScaleFactor = data.scale_factors[0];
-        capabilities.maxScaleFactor = data.scale_factors[data.scale_factors.length - 1];
+        capabilities.minZoom =
+            Math.log2(data.scale_factors[data.scale_factors.length - 1]) *
+                (data.scale_factors[data.scale_factors.length - 1] > 1 ? -1 : 1);
+        capabilities.maxZoom = Math.log2(data.scale_factors[0]) * (data.scale_factors[0] > 1 ? -1 : 1);
     }
     return capabilities;
 }
@@ -14468,8 +14448,10 @@ function computeServerCapabilitiesForV2(data) {
     if (data.tiles && data.tiles.length > -1) {
         const tile = data.tiles[0];
         capabilities.tileSize = leaflet_1.default.point(tile.width, tile.height ? tile.height : tile.width);
-        capabilities.minScaleFactor = tile.scaleFactors[0];
-        capabilities.maxScaleFactor = tile.scaleFactors[tile.scaleFactors.length - 1];
+        capabilities.minZoom =
+            Math.log2(tile.scaleFactors[tile.scaleFactors.length - 1]) *
+                (tile.scaleFactors[tile.scaleFactors.length - 1] > 1 ? -1 : 1);
+        capabilities.maxZoom = Math.log2(tile.scaleFactors[0]) * (tile.scaleFactors[0] > 1 ? -1 : 1);
     }
     return capabilities;
 }
@@ -14508,8 +14490,10 @@ function computeServerCapabilitiesForV3(data) {
     if (data.tiles && data.tiles.length > -1) {
         const tile = data.tiles[0];
         capabilities.tileSize = leaflet_1.default.point(tile.width, tile.height ? tile.height : tile.width);
-        capabilities.minScaleFactor = tile.scaleFactors[0];
-        capabilities.maxScaleFactor = tile.scaleFactors[tile.scaleFactors.length - 1];
+        capabilities.minZoom =
+            Math.log2(tile.scaleFactors[tile.scaleFactors.length - 1]) *
+                (tile.scaleFactors[tile.scaleFactors.length - 1] > 1 ? -1 : 1);
+        capabilities.maxZoom = Math.log2(tile.scaleFactors[0]) * (tile.scaleFactors[0] > 1 ? -1 : 1);
     }
     return capabilities;
 }

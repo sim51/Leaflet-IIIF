@@ -13,9 +13,9 @@ export interface ServerCapabilities {
   rotation: boolean;
   // Support mirroring ?
   mirroring: boolean;
-  // Scale factors
-  minScaleFactor: number;
-  maxScaleFactor: number;
+  // min/max zoom (remated to Scale factors)
+  minZoom: number;
+  maxZoom: number;
   // Preferd tile size
   tileSize: Point | null;
 }
@@ -27,8 +27,8 @@ export const SERVER_CAPABILITIES_DEFAULT: ServerCapabilities = {
   rotation: false,
   mirroring: false,
   tileSize: null,
-  minScaleFactor: 1,
-  maxScaleFactor: 1,
+  minZoom: 0,
+  maxZoom: 0,
 };
 
 /**
@@ -49,9 +49,6 @@ export interface IIIFLayerOptions extends TileLayerOptions {
   // Mirroring
   // Default false
   mirroring: boolean;
-  // Min & max scale factors (ex: { min: 0.25, max: 16 })
-  minScaleFactor: number;
-  maxScaleFactor: number;
   // When initialiazed the layer, do you want to see the full picture ?
   fitBounds: boolean;
   // Does the user can pan outside the image ?
@@ -64,12 +61,10 @@ export const DEFAULT_OPTIONS: IIIFLayerOptions = {
   quality: "default",
   rotation: 0,
   mirroring: false,
-  minScaleFactor: 1,
-  maxScaleFactor: 1,
   fitBounds: true,
   setMaxBounds: false,
   minZoom: 0,
-  maxZoom: 10,
+  maxZoom: 0,
   zoomOffset: 0,
 };
 
