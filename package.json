@@ -30,6 +30,8 @@
   "homepage": "https://github.com/mejackreed/Leaflet-IIIF",
   "devDependencies": {
     "@types/leaflet": "^1.7.0",
+    "css-loader": "^5.2.1",
+    "style-loader": "^2.0.0",
     "ts-loader": "^8.1.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3",

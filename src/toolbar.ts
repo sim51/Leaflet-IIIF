@@ -28,24 +28,46 @@ export class IIIFControl extends Control {
     // Waiting the init of the layer
     this.layer.initializePromise.then(() => {
       // Qualities
-      this.layer.server.qualities.map((quality: string) => {
-        this.createButton(`Quality ${quality}`, `${CONTROL_NAME}-quality`, quality, container, () => {
-          this.layer.options.quality = quality;
-          this.layer.redraw();
-        });
-      });
+      this.createActions(
+        container,
+        "Quality",
+        `${CONTROL_NAME}-quality`,
+        "Q",
+        this.layer.server.qualities.map((quality: string) => {
+          return {
+            title: quality,
+            className: `${CONTROL_NAME}-quality-${quality}`,
+            innerHTML: quality,
+            fn: () => {
+              this.layer.options.quality = quality;
+              this.layer.redraw();
+            },
+          };
+        }),
+      );
 
       // Formats
-      this.layer.server.formats.map((format: string) => {
-        this.createButton(`Format ${format}`, `${CONTROL_NAME}-format`, format, container, () => {
-          this.layer.options.tileFormat = format;
-          this.layer.redraw();
-        });
-      });
+      this.createActions(
+        container,
+        "Format",
+        `${CONTROL_NAME}-format`,
+        "F",
+        this.layer.server.formats.map((format: string) => {
+          return {
+            title: format,
+            className: `${CONTROL_NAME}-format-${format}`,
+            innerHTML: format,
+            fn: () => {
+              this.layer.options.tileFormat = format;
+              this.layer.redraw();
+            },
+          };
+        }),
+      );
 
       // Mirroring
       if (this.layer.server.mirroring) {
-        this.createButton(`Mirroring`, `${CONTROL_NAME}-mirroring`, "Mirroring", container, () => {
+        this.createButton(container, `Mirroring`, `${CONTROL_NAME}-mirroring`, "M", () => {
           this.layer.options.mirroring = !this.layer.options.mirroring;
           this.layer.redraw();
         });
@@ -58,11 +80,40 @@ export class IIIFControl extends Control {
   /**
    * Create a button
    */
-  private createButton(
+  private createActions(
+    container: HTMLElement,
     title: string,
     className: string,
     innerHTML: string,
+    actions: Array<{ title: string; className: string; innerHTML: string; fn: () => void }>,
+  ) {
+    const actionsWrapper = L.DomUtil.create("div", className);
+    this.createButton(actionsWrapper, title, className, innerHTML, () => {
+      if (container.dataset.opened === className) container.dataset.opened = "";
+      else container.dataset.opened = className;
+    });
+    container.appendChild(actionsWrapper);
+
+    const actionsList = L.DomUtil.create("ul", className);
+    actions.forEach(action => {
+      const li = L.DomUtil.create("li", "", actionsList);
+      this.createButton(li, action.title, action.className, action.innerHTML, () => {
+        action.fn();
+        container.dataset.opened = "";
+      });
+      actionsList.appendChild(li);
+    });
+    container.appendChild(actionsList);
+  }
+
+  /**
+   * Create a button
+   */
+  private createButton(
     container: HTMLElement,
+    title: string,
+    className: string,
+    innerHTML: string,
     fn: () => void,
   ): HTMLElement {
     var link: HTMLElement = L.DomUtil.create("a", className, container);

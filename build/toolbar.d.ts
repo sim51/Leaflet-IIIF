@@ -15,5 +15,9 @@ export declare class IIIFControl extends Control {
     /**
      * Create a button
      */
+    private createActions;
+    /**
+     * Create a button
+     */
     private createButton;
 }
