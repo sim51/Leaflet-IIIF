@@ -1,6 +1,6 @@
 import L, { Control, Map } from "leaflet";
 import { IIIFLayer } from "./layer";
-import { IIIFControlOptions } from "./types";
+import { DEFAULT_CONTROL_OPTIONS, IIIFControlOptions } from "./types";
 
 const CONTROL_NAME = "leaflet-control-iiif";
 
@@ -17,7 +17,7 @@ export class IIIFControl extends Control {
    * @param {object} options List of options for the control
    */
   constructor(layer: IIIFLayer, options: Partial<IIIFControlOptions> = {}) {
-    super(options);
+    super(Object.assign({}, DEFAULT_CONTROL_OPTIONS, options));
     this.layer = layer;
     this._container = L.DomUtil.create("div", `${CONTROL_NAME} leaflet-bar`);
   }
@@ -28,49 +28,61 @@ export class IIIFControl extends Control {
     // Waiting the init of the layer
     this.layer.initializePromise.then(() => {
       // Qualities
-      this.createActions(
-        container,
-        "Quality",
-        `${CONTROL_NAME}-quality`,
-        "Q",
-        this.layer.server.qualities.map((quality: string) => {
-          return {
-            title: quality,
-            className: `${CONTROL_NAME}-quality-${quality}`,
-            innerHTML: quality,
-            fn: () => {
-              this.layer.options.quality = quality;
-              this.layer.redraw();
-            },
-          };
-        }),
-      );
+      if (this.options.quality.enabled === true) {
+        const qualities = this.options.quality.values ? this.options.quality.values : this.layer.server.qualities;
+        this.createActions(
+          container,
+          this.options.quality.title,
+          `${CONTROL_NAME}-quality`,
+          this.options.quality.html,
+          qualities.map((quality: string) => {
+            return {
+              title: quality,
+              className: `${CONTROL_NAME}-quality-${quality}`,
+              innerHTML: quality,
+              fn: () => {
+                this.layer.options.quality = quality;
+                this.layer.redraw();
+              },
+            };
+          }),
+        );
+      }
 
       // Formats
-      this.createActions(
-        container,
-        "Format",
-        `${CONTROL_NAME}-format`,
-        "F",
-        this.layer.server.formats.map((format: string) => {
-          return {
-            title: format,
-            className: `${CONTROL_NAME}-format-${format}`,
-            innerHTML: format,
-            fn: () => {
-              this.layer.options.tileFormat = format;
-              this.layer.redraw();
-            },
-          };
-        }),
-      );
+      if (this.options.format.enabled === true) {
+        const formats = this.options.format.values ? this.options.format.values : this.layer.server.formats;
+        this.createActions(
+          container,
+          this.options.format.title,
+          `${CONTROL_NAME}-format`,
+          this.options.format.html,
+          formats.map((format: string) => {
+            return {
+              title: format,
+              className: `${CONTROL_NAME}-format-${format}`,
+              innerHTML: format,
+              fn: () => {
+                this.layer.options.tileFormat = format;
+                this.layer.redraw();
+              },
+            };
+          }),
+        );
+      }
 
       // Mirroring
-      if (this.layer.server.mirroring) {
-        this.createButton(container, `Mirroring`, `${CONTROL_NAME}-mirroring`, "M", () => {
-          this.layer.options.mirroring = !this.layer.options.mirroring;
-          this.layer.redraw();
-        });
+      if (this.options.mirroring.enabled === true && this.layer.server.mirroring === true) {
+        this.createButton(
+          container,
+          this.options.mirroring.title,
+          `${CONTROL_NAME}-mirroring`,
+          this.options.mirroring.html,
+          () => {
+            this.layer.options.mirroring = !this.layer.options.mirroring;
+            this.layer.redraw();
+          },
+        );
       }
     });
 
@@ -92,7 +104,6 @@ export class IIIFControl extends Control {
       if (container.dataset.opened === className) container.dataset.opened = "";
       else container.dataset.opened = className;
     });
-    container.appendChild(actionsWrapper);
 
     const actionsList = L.DomUtil.create("ul", className);
     actions.forEach(action => {
@@ -103,7 +114,9 @@ export class IIIFControl extends Control {
       });
       actionsList.appendChild(li);
     });
-    container.appendChild(actionsList);
+    actionsWrapper.appendChild(actionsList);
+
+    container.appendChild(actionsWrapper);
   }
 
   /**

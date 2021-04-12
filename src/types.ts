@@ -1,4 +1,5 @@
 import L, { ControlOptions, Point, TileLayerOptions } from "leaflet";
+
 /**
  * List the capabilities of the server.
  */
@@ -68,4 +69,34 @@ export const DEFAULT_OPTIONS: IIIFLayerOptions = {
   zoomOffset: 0,
 };
 
-export interface IIIFControlOptions extends ControlOptions {}
+interface IIIFControlAction {
+  enabled: boolean;
+  title: string;
+  html: string;
+  // if undefined, we take the one from the server
+  values?: Array<string>;
+}
+
+export interface IIIFControlOptions extends ControlOptions {
+  quality: IIIFControlAction;
+  format: IIIFControlAction;
+  mirroring: IIIFControlAction;
+}
+
+export const DEFAULT_CONTROL_OPTIONS: IIIFControlOptions = {
+  quality: {
+    enabled: true,
+    title: "Quality",
+    html: `<span />`,
+  },
+  format: {
+    enabled: true,
+    title: "Format",
+    html: `<span />`,
+  },
+  mirroring: {
+    enabled: true,
+    title: "Mirroring",
+    html: `<span />`,
+  },
+};

@@ -1,0 +1,49 @@
+.leaflet-control-iiif {
+  a {
+    cursor: pointer;
+    background-size: 15px 15px;
+  }
+
+  a.leaflet-control-iiif-quality {
+    background-image: url("./paint-board-and-brush.svg?encoding=base64");
+  }
+  a.leaflet-control-iiif-format {
+    background-image: url("./jpg.svg?encoding=base64");
+  }
+  a.leaflet-control-iiif-mirroring {
+    background-image: url("./symmetry.svg?encoding=base64");
+  }
+
+  ul {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 0;
+    height: 0;
+    top: -30px;
+    right: -1px;
+    flex-flow: row-reverse;
+
+    li {
+      display: inline-block;
+
+      a {
+        background-color: #919187;
+        color: #fff;
+        padding: 0 5px;
+        width: auto !important;
+        border-right: 1px solid #fff;
+      }
+    }
+  }
+}
+
+// Menu selection
+div.leaflet-control-iiif[data-opened="leaflet-control-iiif-quality"] ul.leaflet-control-iiif-quality {
+  display: flex;
+}
+div.leaflet-control-iiif[data-opened="leaflet-control-iiif-format"] ul.leaflet-control-iiif-format {
+  display: flex;
+}

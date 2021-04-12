@@ -14291,7 +14291,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DEFAULT_OPTIONS = exports.SERVER_CAPABILITIES_DEFAULT = void 0;
+exports.DEFAULT_CONTROL_OPTIONS = exports.DEFAULT_OPTIONS = exports.SERVER_CAPABILITIES_DEFAULT = void 0;
 const leaflet_1 = __importDefault(__webpack_require__(2));
 exports.SERVER_CAPABILITIES_DEFAULT = {
     version: "3.0",
@@ -14314,6 +14314,23 @@ exports.DEFAULT_OPTIONS = {
     minZoom: 0,
     maxZoom: 0,
     zoomOffset: 0,
+};
+exports.DEFAULT_CONTROL_OPTIONS = {
+    quality: {
+        enabled: true,
+        title: "Quality",
+        html: `<span />`,
+    },
+    format: {
+        enabled: true,
+        title: "Format",
+        html: `<span />`,
+    },
+    mirroring: {
+        enabled: true,
+        title: "Mirroring",
+        html: `<span />`,
+    },
 };
 
 
@@ -14527,6 +14544,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.IIIFControl = void 0;
 const leaflet_1 = __importStar(__webpack_require__(2));
+const types_1 = __webpack_require__(3);
 const CONTROL_NAME = "leaflet-control-iiif";
 class IIIFControl extends leaflet_1.Control {
     /**
@@ -14535,7 +14553,7 @@ class IIIFControl extends leaflet_1.Control {
      * @param {object} options List of options for the control
      */
     constructor(layer, options = {}) {
-        super(options);
+        super(Object.assign({}, types_1.DEFAULT_CONTROL_OPTIONS, options));
         this.layer = layer;
         this._container = leaflet_1.default.DomUtil.create("div", `${CONTROL_NAME} leaflet-bar`);
     }
@@ -14544,32 +14562,38 @@ class IIIFControl extends leaflet_1.Control {
         // Waiting the init of the layer
         this.layer.initializePromise.then(() => {
             // Qualities
-            this.createActions(container, "Quality", `${CONTROL_NAME}-quality`, "Q", this.layer.server.qualities.map((quality) => {
-                return {
-                    title: quality,
-                    className: `${CONTROL_NAME}-quality-${quality}`,
-                    innerHTML: quality,
-                    fn: () => {
-                        this.layer.options.quality = quality;
-                        this.layer.redraw();
-                    },
-                };
-            }));
+            if (this.options.quality.enabled === true) {
+                const qualities = this.options.quality.values ? this.options.quality.values : this.layer.server.qualities;
+                this.createActions(container, this.options.quality.title, `${CONTROL_NAME}-quality`, this.options.quality.html, qualities.map((quality) => {
+                    return {
+                        title: quality,
+                        className: `${CONTROL_NAME}-quality-${quality}`,
+                        innerHTML: quality,
+                        fn: () => {
+                            this.layer.options.quality = quality;
+                            this.layer.redraw();
+                        },
+                    };
+                }));
+            }
             // Formats
-            this.createActions(container, "Format", `${CONTROL_NAME}-format`, "F", this.layer.server.formats.map((format) => {
-                return {
-                    title: format,
-                    className: `${CONTROL_NAME}-format-${format}`,
-                    innerHTML: format,
-                    fn: () => {
-                        this.layer.options.tileFormat = format;
-                        this.layer.redraw();
-                    },
-                };
-            }));
+            if (this.options.format.enabled === true) {
+                const formats = this.options.format.values ? this.options.format.values : this.layer.server.formats;
+                this.createActions(container, this.options.format.title, `${CONTROL_NAME}-format`, this.options.format.html, formats.map((format) => {
+                    return {
+                        title: format,
+                        className: `${CONTROL_NAME}-format-${format}`,
+                        innerHTML: format,
+                        fn: () => {
+                            this.layer.options.tileFormat = format;
+                            this.layer.redraw();
+                        },
+                    };
+                }));
+            }
             // Mirroring
-            if (this.layer.server.mirroring) {
-                this.createButton(container, `Mirroring`, `${CONTROL_NAME}-mirroring`, "M", () => {
+            if (this.options.mirroring.enabled === true && this.layer.server.mirroring === true) {
+                this.createButton(container, this.options.mirroring.title, `${CONTROL_NAME}-mirroring`, this.options.mirroring.html, () => {
                     this.layer.options.mirroring = !this.layer.options.mirroring;
                     this.layer.redraw();
                 });
@@ -14588,7 +14612,6 @@ class IIIFControl extends leaflet_1.Control {
             else
                 container.dataset.opened = className;
         });
-        container.appendChild(actionsWrapper);
         const actionsList = leaflet_1.default.DomUtil.create("ul", className);
         actions.forEach(action => {
             const li = leaflet_1.default.DomUtil.create("li", "", actionsList);
@@ -14598,7 +14621,8 @@ class IIIFControl extends leaflet_1.Control {
             });
             actionsList.appendChild(li);
         });
-        container.appendChild(actionsList);
+        actionsWrapper.appendChild(actionsList);
+        container.appendChild(actionsWrapper);
     }
     /**
      * Create a button
@@ -14625,7 +14649,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_style_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_index_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
 
             
 
@@ -14634,11 +14658,11 @@ var options = {};
 options.insert = "head";
 options.singleton = false;
 
-var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_style_css__WEBPACK_IMPORTED_MODULE_1__.default, options);
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_index_scss__WEBPACK_IMPORTED_MODULE_1__.default, options);
 
 
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_style_css__WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_index_scss__WEBPACK_IMPORTED_MODULE_1__.default.locals || {});
 
 /***/ }),
 /* 7 */
@@ -14928,12 +14952,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(41);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _paint_board_and_brush_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(45);
+/* harmony import */ var _paint_board_and_brush_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_paint_board_and_brush_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _jpg_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(46);
+/* harmony import */ var _jpg_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_jpg_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _symmetry_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(47);
+/* harmony import */ var _symmetry_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_symmetry_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_5__);
 // Imports
 
 
+
+
+
+
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
+var ___CSS_LOADER_URL_REPLACEMENT_0___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()((_paint_board_and_brush_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_3___default()));
+var ___CSS_LOADER_URL_REPLACEMENT_1___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()((_jpg_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_4___default()));
+var ___CSS_LOADER_URL_REPLACEMENT_2___ = _node_modules_css_loader_dist_runtime_getUrl_js__WEBPACK_IMPORTED_MODULE_2___default()((_symmetry_svg_encoding_base64__WEBPACK_IMPORTED_MODULE_5___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".leaflet-control-iiif a {\n  cursor: pointer;\n}\n.leaflet-control-iiif ul {\n  display: none;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  position: relative;\n  width: 0;\n  height: 0;\n  top: -30px;\n  right: -1px;\n  flex-flow: row-reverse;\n}\n.leaflet-control-iiif ul li {\n  display: inline-block;\n}\n.leaflet-control-iiif ul li a {\n  background-color: #919187;\n  color: #fff;\n  padding: 0 5px;\n  width: auto !important;\n  border-right: 1px solid #fff;\n}\n\ndiv.leaflet-control-iiif[data-opened=\"leaflet-control-iiif-quality\"] ul.leaflet-control-iiif-quality {\n  display: flex;\n}\n\ndiv.leaflet-control-iiif[data-opened=\"leaflet-control-iiif-format\"] ul.leaflet-control-iiif-format {\n  display: flex;\n}\n\nbody {\n  background-color: red;\n}\n", "",{"version":3,"sources":["webpack://./src/style.css"],"names":[],"mappings":"AAAA;EACE,eAAe;AACjB;AACA;EACE,aAAa;EACb,gBAAgB;EAChB,SAAS;EACT,UAAU;EACV,kBAAkB;EAClB,QAAQ;EACR,SAAS;EACT,UAAU;EACV,WAAW;EACX,sBAAsB;AACxB;AACA;EACE,qBAAqB;AACvB;AACA;EACE,yBAAyB;EACzB,WAAW;EACX,cAAc;EACd,sBAAsB;EACtB,4BAA4B;AAC9B;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,aAAa;AACf;;AAEA;EACE,qBAAqB;AACvB","sourcesContent":[".leaflet-control-iiif a {\n  cursor: pointer;\n}\n.leaflet-control-iiif ul {\n  display: none;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  position: relative;\n  width: 0;\n  height: 0;\n  top: -30px;\n  right: -1px;\n  flex-flow: row-reverse;\n}\n.leaflet-control-iiif ul li {\n  display: inline-block;\n}\n.leaflet-control-iiif ul li a {\n  background-color: #919187;\n  color: #fff;\n  padding: 0 5px;\n  width: auto !important;\n  border-right: 1px solid #fff;\n}\n\ndiv.leaflet-control-iiif[data-opened=\"leaflet-control-iiif-quality\"] ul.leaflet-control-iiif-quality {\n  display: flex;\n}\n\ndiv.leaflet-control-iiif[data-opened=\"leaflet-control-iiif-format\"] ul.leaflet-control-iiif-format {\n  display: flex;\n}\n\nbody {\n  background-color: red;\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, ".leaflet-control-iiif a {\n  cursor: pointer;\n  background-size: 15px 15px;\n}\n.leaflet-control-iiif a.leaflet-control-iiif-quality {\n  background-image: url(" + ___CSS_LOADER_URL_REPLACEMENT_0___ + ");\n}\n.leaflet-control-iiif a.leaflet-control-iiif-format {\n  background-image: url(" + ___CSS_LOADER_URL_REPLACEMENT_1___ + ");\n}\n.leaflet-control-iiif a.leaflet-control-iiif-mirroring {\n  background-image: url(" + ___CSS_LOADER_URL_REPLACEMENT_2___ + ");\n}\n.leaflet-control-iiif ul {\n  display: none;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  position: relative;\n  width: 0;\n  height: 0;\n  top: -30px;\n  right: -1px;\n  flex-flow: row-reverse;\n}\n.leaflet-control-iiif ul li {\n  display: inline-block;\n}\n.leaflet-control-iiif ul li a {\n  background-color: #919187;\n  color: #fff;\n  padding: 0 5px;\n  width: auto !important;\n  border-right: 1px solid #fff;\n}\n\ndiv.leaflet-control-iiif[data-opened=leaflet-control-iiif-quality] ul.leaflet-control-iiif-quality {\n  display: flex;\n}\n\ndiv.leaflet-control-iiif[data-opened=leaflet-control-iiif-format] ul.leaflet-control-iiif-format {\n  display: flex;\n}", "",{"version":3,"sources":["webpack://./src/assets/index.scss"],"names":[],"mappings":"AACE;EACE,eAAA;EACA,0BAAA;AAAJ;AAGE;EACE,yDAAA;AADJ;AAGE;EACE,yDAAA;AADJ;AAGE;EACE,yDAAA;AADJ;AAIE;EACE,aAAA;EACA,gBAAA;EACA,SAAA;EACA,UAAA;EACA,kBAAA;EACA,QAAA;EACA,SAAA;EACA,UAAA;EACA,WAAA;EACA,sBAAA;AAFJ;AAII;EACE,qBAAA;AAFN;AAIM;EACE,yBAAA;EACA,WAAA;EACA,cAAA;EACA,sBAAA;EACA,4BAAA;AAFR;;AASA;EACE,aAAA;AANF;;AAQA;EACE,aAAA;AALF","sourcesContent":[".leaflet-control-iiif {\n  a {\n    cursor: pointer;\n    background-size: 15px 15px;\n  }\n\n  a.leaflet-control-iiif-quality {\n    background-image: url(\"./paint-board-and-brush.svg?encoding=base64\");\n  }\n  a.leaflet-control-iiif-format {\n    background-image: url(\"./jpg.svg?encoding=base64\");\n  }\n  a.leaflet-control-iiif-mirroring {\n    background-image: url(\"./symmetry.svg?encoding=base64\");\n  }\n\n  ul {\n    display: none;\n    list-style: none;\n    margin: 0;\n    padding: 0;\n    position: relative;\n    width: 0;\n    height: 0;\n    top: -30px;\n    right: -1px;\n    flex-flow: row-reverse;\n\n    li {\n      display: inline-block;\n\n      a {\n        background-color: #919187;\n        color: #fff;\n        padding: 0 5px;\n        width: auto !important;\n        border-right: 1px solid #fff;\n      }\n    }\n  }\n}\n\n// Menu selection\ndiv.leaflet-control-iiif[data-opened=\"leaflet-control-iiif-quality\"] ul.leaflet-control-iiif-quality {\n  display: flex;\n}\ndiv.leaflet-control-iiif[data-opened=\"leaflet-control-iiif-format\"] ul.leaflet-control-iiif-format {\n  display: flex;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -24591,6 +24630,67 @@ module.exports.formatError = function (err) {
 	}
 };
 
+
+/***/ }),
+/* 41 */
+/***/ ((module) => {
+
+"use strict";
+
+
+module.exports = function (url, options) {
+  if (!options) {
+    // eslint-disable-next-line no-param-reassign
+    options = {};
+  } // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+
+
+  url = url && url.__esModule ? url.default : url;
+
+  if (typeof url !== "string") {
+    return url;
+  } // If url is already wrapped in quotes, remove them
+
+
+  if (/^['"].*['"]$/.test(url)) {
+    // eslint-disable-next-line no-param-reassign
+    url = url.slice(1, -1);
+  }
+
+  if (options.hash) {
+    // eslint-disable-next-line no-param-reassign
+    url += options.hash;
+  } // Should url be wrapped?
+  // See https://drafts.csswg.org/css-values-3/#urls
+
+
+  if (/["'() \t\n]/.test(url) || options.needQuotes) {
+    return "\"".concat(url.replace(/"/g, '\\"').replace(/\n/g, "\\n"), "\"");
+  }
+
+  return url;
+};
+
+/***/ }),
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */
+/***/ ((module) => {
+
+module.exports = "data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNDMxLjk4NXB4IiBoZWlnaHQ9IjQzMS45ODVweCIgdmlld0JveD0iMCAwIDQzMS45ODUgNDMxLjk4NSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNDMxLjk4NSA0MzEuOTg1OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+IDxnPiA8cGF0aCBkPSJNNDIzLjI1Nyw1MS44MjljLTAuODA4LTIuMDQ1LTIuNjctMy40ODQtNC44NTMtMy43NTFjLTIuMTc3LTAuMjY2LTQuMzM1LDAuNjgyLTUuNjEyLDIuNDcyIGMtNy41ODEsMTAuNjI5LTE3LjUyOSwxNC4xNzItMjkuMDUzLDE4LjI3NWMtOS4yOTIsMy4zMS0xOC45MDEsNi43My0yOS4yODYsMTQuMTg2Yy0xNC42ODcsMTAuNTQ0LTIxLjQwNSwyNC45MTctMTguMDU1LDM4LjU0IGwtMC4zNTgsMC40NTljLTYuMTMzLTguODk3LTEyLjgwNi0xNy4xMjYtMTkuODQ4LTI0LjQ3NGMtMzIuOTQ3LTM0LjM3OC03OC45ODQtNTUuMDQ2LTEyNi4zMTEtNTYuNzAzIGMtMi4wODUtMC4wNzMtNC4yMDQtMC4xMS02LjI5OC0wLjExYy01Mi44NDYsMC0xMDMuNDI4LDIzLjYyNC0xMzguNzc1LDY0LjgxM0M5LjY0NiwxNDYuNTEyLTUuOTM5LDE5OS44NTMsMi4wNTEsMjUxLjg4MiBjMC42NjgsNC4zNDksMS41MDQsOC43NDMsMi40ODcsMTMuMDYzYzEyLjk5Niw1Ny4yMDIsNDYuMTg5LDEwMC43MTcsOTEuMDY5LDExOS4zODNjMTEuMDYzLDQuNjAyLDIyLjIyMiw2LjkzNCwzMy4xNjMsNi45MzQgYzI3LjE4MywwLDUwLjkyNi0xNC41MzksNjUuMTQzLTM5Ljg4OWM1LjQwNC05LjY0Niw4Ljg5MS0xOS42MjEsMTAuMzYtMjkuNjUxYzAuODY2LTUuOTIsMC4yNzQtMTEuODM1LTAuMy0xNy41NjcgYy0wLjU5MS01LjktMS4xNDktMTEuNDc2LTAuMjU2LTE3LjA5YzIuMDQ3LTEyLjg2OSwxMS4wMzYtMjAuNTUzLDI0LjA0Ny0yMC41NTNjMy43MDEsMCw3LjQ4MywwLjYwOSwxMS4yNiwxLjgxMiBjLTQuNDIyLDguMTEtOC40MzgsMTUuODU0LTExLjk0NywyMy4wMzJjLTcuNDM3LDE1LjIxMi0xMi41NjcsMjcuODEtMTUuMjUyLDM3LjQ0Yy0xLjY1NSw1LjkzOS02LjA1MiwyMS43MjIsNC42NywyOS4xNjQgYzMuNDA1LDIuMzYzLDcuNzIyLDMuMTk3LDEyLjIxNSwyLjM2MWM0LjA0OS0wLjc1MiwxNi4zNjktMy4wNDEsNTEuMzc4LTQyLjg5NmM5LjM5Ni0xMC42OTUsMTkuNTIxLTIzLjA3MiwzMC4xMDQtMzYuNzk0IGMyNy4xNjgtOS4xNSw0OC4zMS0zMS45MjEsNTMuOTAzLTU4LjA4N2MxLjQtNi41NDEsMS45ODQtMTMuNTQxLDEuNzM1LTIwLjgxMmMxMC4xNzItMTUuNzIsMTkuMDk0LTMwLjM4OCwyOC4wNzItNDYuMTU2IGMwLjE3Mi0wLjMwNCwwLjM0Mi0wLjYyOCwwLjUxLTAuOTZjMTMuMDMxLTMuNTY5LDI0LjI1NC0xMy43MSwzMC44NDItMjcuODkxQzQzNC44NzIsMTA2LjAyOCw0MzQuMTYzLDc5LjQyOCw0MjMuMjU3LDUxLjgyOXogTTI3Ni4zODUsMTQ5LjgzNGMtNC43MTMsNy40ODUtMTIuODE0LDExLjk1NC0yMS42NzMsMTEuOTU0Yy00LjgxLDAtOS41MTUtMS4zNjEtMTMuNjA1LTMuOTM3IGMtNS43ODItMy42NDItOS44MDMtOS4zMTctMTEuMzE2LTE1Ljk4cy0wLjM0NS0xMy41MTgsMy4yOTgtMTkuMzAxYzQuNzE0LTcuNDg1LDEyLjgxNi0xMS45NTQsMjEuNjc1LTExLjk1NCBjNC44MTEsMCw5LjUxNSwxLjM2MSwxMy42MDQsMy45MzhjNS43ODIsMy42NCw5LjgwMiw5LjMxNSwxMS4zMTYsMTUuOTc5QzI4MS4xOTcsMTM3LjE5NywyODAuMDI2LDE0NC4wNTEsMjc2LjM4NSwxNDkuODM0eiBNMzA5LjU5MiwxOTYuMTg3YzEyLjkzNC0xOS4wNTcsMjYuNjEyLTM4LDM5LjYwNC01NC44NWMyLjEwNiwxLjkwMiw0LjQ2MSwzLjc2LDcuMDEyLDUuNTNjNC4yMjcsMi45MzMsOC42NDgsNS4yMDEsMTMuMTY0LDYuNzU0IGMtMTAuOTY5LDE4Ljc1OC0yMi43NjMsMzcuMzQyLTM3LjA0Myw1OC4zNzVjLTIzLjQ2MywzNC41NzEtNDcuODU5LDY2LjY4NC02OC42OTUsOTAuNDI0IGMtMTEuNjM4LDEzLjI2LTIxLjgyMywyMy40OTgtMjkuNjcxLDI5LjgzOWMzLjAyOS05LjY5LDguODE4LTIyLjk4OSwxNi44NzUtMzguNzQ2IEMyNjUuMjQ1LDI2NS4zMzYsMjg2LjExMSwyMzAuNzcyLDMwOS41OTIsMTk2LjE4N3ogTTgyLjUwNiwxOTYuMDIzYy00LjgxMSwwLTkuNTE2LTEuMzYxLTEzLjYwNy0zLjkzOCBjLTUuNzgyLTMuNjQxLTkuODAxLTkuMzE0LTExLjMxNS0xNS45NzljLTEuNTE0LTYuNjY0LTAuMzQyLTEzLjUxOSwzLjMwMS0xOS4zMDJjNC43MTEtNy40ODQsMTIuODEzLTExLjk1MywyMS42NzEtMTEuOTUzIGM0LjgxMiwwLDkuNTE3LDEuMzYxLDEzLjYwNywzLjkzOGMxMS45MzYsNy41MTgsMTUuNTMyLDIzLjM0NSw4LjAxOSwzNS4yNzlDOTkuNDY2LDE5MS41NTQsOTEuMzYzLDE5Ni4wMjMsODIuNTA2LDE5Ni4wMjN6IE01NS42ODgsMjUyLjM1OGM0LjcxMy03LjQ4NiwxMi44MTQtMTEuOTU1LDIxLjY3My0xMS45NTVjNC44MSwwLDkuNTE0LDEuMzYyLDEzLjYwNiwzLjkzOGM1Ljc4MiwzLjY0MSw5LjgwMSw5LjMxNSwxMS4zMTUsMTUuOTc5IGMxLjUxNSw2LjY2MiwwLjM0MywxMy41MTYtMy4zMDEsMTkuMzAxYy00LjcxMSw3LjQ4My0xMi44MTMsMTEuOTUzLTIxLjY3MSwxMS45NTNjLTQuODExLDAtOS41MTctMS4zNjEtMTMuNjA5LTMuOTM4IGMtNS43ODItMy42NDItOS44LTkuMzE1LTExLjMxMy0xNS45NzlDNTAuODc2LDI2NC45OTUsNTIuMDQ5LDI1OC4xNCw1NS42ODgsMjUyLjM1OHogTTEzNy42MiwxMDAuNDE0IGM0LjcxMy03LjQ4NSwxMi44MTUtMTEuOTU0LDIxLjY3My0xMS45NTRjNC44MDksMCw5LjUxNCwxLjM2MSwxMy42MDQsMy45MzdjMTEuOTM3LDcuNTE2LDE1LjUzMywyMy4zNDQsOC4wMTksMzUuMjggYy00LjcxNSw3LjQ4Ni0xMi44MTcsMTEuOTU1LTIxLjY3NSwxMS45NTVjLTQuODEsMC05LjUxNS0xLjM2MS0xMy42MDUtMy45MzhjLTUuNzgxLTMuNjQtOS43OTktOS4zMTQtMTEuMzEzLTE1Ljk3OSBDMTMyLjgwNywxMTMuMDUyLDEzMy45NzksMTA2LjE5OCwxMzcuNjIsMTAwLjQxNHoiLz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8Zz4gPC9nPiA8L3N2Zz4g"
+
+/***/ }),
+/* 46 */
+/***/ ((module) => {
+
+module.exports = "data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEyIDUxMjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPiA8cG9seWdvbiBwb2ludHM9IjM2MSw4Ljc4OSAzNjEsOTAgNDQyLjIxMSw5MCAiLz4gPHBvbHlnb24gcG9pbnRzPSIzMTYsMjE0Ljc1IDI4MC45OTQsMjQxIDMyNC45OTQsMjc0LjAwMyAzMDcuMDA2LDI5Ny45OTcgMTk2LDIxNC43NSA2MSwzMjMuMTc0IDYxLDM2MSA0NTEsMzYxIDQ1MSwzMjMuMTc0ICIvPiA8cGF0aCBkPSJNMTY2LDkwYy04LjI3NiwwLTE1LDYuNzI0LTE1LDE1czYuNzI0LDE1LDE1LDE1czE1LTYuNzI0LDE1LTE1UzE3NC4yNzYsOTAsMTY2LDkweiIvPiA8cGF0aCBkPSJNNjEsMzkxdjEyMWgzOTBWMzkxSDYxeiBNMzMxLDQ1MUgxODF2LTMwaDE1MFY0NTF6Ii8+IDxwYXRoIGQ9Ik0zMzEsMTIwVjBINjF2Mjg0Ljg3NEwxOTYsMTc3LjI1bDYwLjAwMiw0NS4wMDVMMzE2LDE3Ny4yNWwxMzUsMTA3LjYyNFYxMjBIMzMxeiBNMTY2LDE1MGMtMjQuODE0LDAtNDUtMjAuMTg2LTQ1LTQ1IGMwLTI0LjgxNCwyMC4xODYtNDUsNDUtNDVjMjQuODE0LDAsNDUsMjAuMTg2LDQ1LDQ1QzIxMSwxMjkuODE0LDE5MC44MTQsMTUwLDE2NiwxNTB6Ii8+IDwvc3ZnPiA="
+
+/***/ }),
+/* 47 */
+/***/ ((module) => {
+
+module.exports = "data:image/svg+xml;base64,PHN2ZyBpZD0iQ2FwYV8xIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA1MTIgNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGc+PHBhdGggZD0ibTI0MSA0NTFoMzB2MzBoLTMweiIvPjxwYXRoIGQ9Im0yNDEgMzkxaDMwdjMwaC0zMHoiLz48cGF0aCBkPSJtMjQxIDMzMWgzMHYzMGgtMzB6Ii8+PHBhdGggZD0ibTI0MSAyNzFoMzB2MzBoLTMweiIvPjxwYXRoIGQ9Im0yNDEgMjExaDMwdjMwaC0zMHoiLz48cGF0aCBkPSJtMjQxIDE1MWgzMHYzMGgtMzB6Ii8+PHBhdGggZD0ibTI0MSA5MWgzMHYzMGgtMzB6Ii8+PHBhdGggZD0ibTI0MSAzMWgzMHYzMGgtMzB6Ii8+PHBhdGggZD0ibTAgNDMzLjYyNSAyMDYtNjYuNzE2di0yMTEuMjQ5bC0yMDYtNzguNDJ6Ii8+PHBhdGggZD0ibTMwNiAxNTUuNjZ2MjExLjI0OWwyMDYgNjYuNzE2di0zNTYuMzg1eiIvPjwvZz48L3N2Zz4g"
 
 /***/ })
 /******/ 	]);

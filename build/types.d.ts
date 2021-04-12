@@ -26,5 +26,16 @@ export interface IIIFLayerOptions extends TileLayerOptions {
     setMaxBounds: boolean;
 }
 export declare const DEFAULT_OPTIONS: IIIFLayerOptions;
-export interface IIIFControlOptions extends ControlOptions {
+interface IIIFControlAction {
+    enabled: boolean;
+    title: string;
+    html: string;
+    values?: Array<string>;
 }
+export interface IIIFControlOptions extends ControlOptions {
+    quality: IIIFControlAction;
+    format: IIIFControlAction;
+    mirroring: IIIFControlAction;
+}
+export declare const DEFAULT_CONTROL_OPTIONS: IIIFControlOptions;
+export {};

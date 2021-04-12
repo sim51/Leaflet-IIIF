@@ -14,10 +14,7 @@
         crs: L.CRS.Simple,
         zoom: 0,
       });
-      const layer = L.tileLayer.iiif(
-        "http://localhost/iiif/2/60%2Fdad9f351-16ed-4fd6-97a5-b1a918f72d5a.tiff/info.json",
-        { maxZoom: 2 },
-      );
+      const layer = L.tileLayer.iiif("https://ids.lib.harvard.edu/ids/iiif/43183405/info.json", { maxZoom: 2 });
       layer.addTo(map);
       const control = L.control.iiif(layer);
       control.addTo(map);
