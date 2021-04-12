@@ -138,11 +138,23 @@ export class IIIFLayer extends TileLayer {
     const zoomLayer = this.zoomLayers.find(layer => layer.zoom === z);
     if (!zoomLayer) throw new Error(`Can't create tile for zoom ${z}`);
 
-    // COmpute the image region / bbox
-    const minX = (x * this.options.tileSize.x) / zoomLayer.scale;
-    const minY = (y * this.options.tileSize.y) / zoomLayer.scale;
-    const maxX = Math.min(minX + this.options.tileSize.x / zoomLayer.scale, this.width);
-    const maxY = Math.min(minY + this.options.tileSize.y / zoomLayer.scale, this.height);
+    const tileSizeX = this.options.tileSize.x / zoomLayer.scale;
+    const tileSizeY = this.options.tileSize.y / zoomLayer.scale;
+
+    // Compute the image region / bbox NW/SE
+    let minX = Math.min(x * tileSizeX, this.width);
+    let minY = Math.min(y * tileSizeY, this.height);
+    let maxX = Math.min(minX + tileSizeX, this.width);
+    let maxY = Math.min(minY + tileSizeY, this.height);
+
+    // In mirroring, if we do the diff with the width,
+    // we then have the bbox NE/SO,
+    // so we need to switch back to NW/SE by add/subs the diff
+    if (this.options.mirroring === true) {
+      const diffX = maxX - minX;
+      minX = this.width - minX - diffX;
+      maxX = this.width - maxX + diffX;
+    }
 
     const params = {
       format: this.options.tileFormat,
