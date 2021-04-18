@@ -10,7 +10,8 @@
   "scripts": {
     "build": "webpack --progress && webpack --progress --mode production",
     "start": "webpack serve",
-    "compile": "./node_modules/.bin/tsc"
+    "compile": "./node_modules/.bin/tsc",
+    "test": "mocha --require jsdom-global/register --require ts-node/register ./test/unit/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,11 @@
   "homepage": "https://github.com/mejackreed/Leaflet-IIIF",
   "devDependencies": {
     "@types/leaflet": "^1.7.0",
+    "@types/mocha": "^8.2.2",
     "css-loader": "^5.2.1",
+    "jsdom": "16.5.3",
+    "jsdom-global": "3.0.2",
+    "mocha": "^8.3.2",
     "sass": "^1.32.8",
     "sass-loader": "^11.0.1",
     "style-loader": "^2.0.0",

@@ -1,5 +1,6 @@
 import L, { Control, Map } from "leaflet";
 import { IIIFLayer } from "./layer";
+import { IIIF_EVENTS } from "./event";
 import { DEFAULT_CONTROL_OPTIONS, IIIFControlOptions } from "./types";
 
 const CONTROL_NAME = "leaflet-control-iiif";
@@ -41,8 +42,7 @@ export class IIIFControl extends Control {
               className: `${CONTROL_NAME}-quality-${quality}`,
               innerHTML: quality,
               fn: () => {
-                this.layer.options.quality = quality;
-                this.layer.redraw();
+                map.fire(IIIF_EVENTS.CHANGE_QUALITY, { value: quality });
               },
             };
           }),
@@ -63,8 +63,28 @@ export class IIIFControl extends Control {
               className: `${CONTROL_NAME}-format-${format}`,
               innerHTML: format,
               fn: () => {
-                this.layer.options.tileFormat = format;
-                this.layer.redraw();
+                map.fire(IIIF_EVENTS.CHANGE_FORMAT, { value: format });
+              },
+            };
+          }),
+        );
+      }
+
+      // Formats
+      if (this.options.rotation.enabled === true && this.layer.server.rotation === true) {
+        const rotations = this.options.rotation.values ? this.options.rotation.values : ["0", "90", "180", "270"];
+        this.createActions(
+          container,
+          this.options.rotation.title,
+          `${CONTROL_NAME}-rotation`,
+          this.options.rotation.html,
+          rotations.map((rotation: string) => {
+            return {
+              title: rotation,
+              className: `${CONTROL_NAME}-rotation-${rotation}`,
+              innerHTML: rotation,
+              fn: () => {
+                map.fire(IIIF_EVENTS.CHANGE_ROTATION, { value: Number.parseInt(rotation) });
               },
             };
           }),
@@ -79,8 +99,7 @@ export class IIIFControl extends Control {
           `${CONTROL_NAME}-mirroring`,
           this.options.mirroring.html,
           () => {
-            this.layer.options.mirroring = !this.layer.options.mirroring;
-            this.layer.redraw();
+            map.fire(IIIF_EVENTS.CHANGE_MIRRORING, { value: !this.layer.options.mirroring });
           },
         );
       }

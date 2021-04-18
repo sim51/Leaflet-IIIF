@@ -1,6 +1,15 @@
 import L, { Map, Point, TileLayer, TileLayerOptions, TileEvent, Util } from "leaflet";
-import { DEFAULT_OPTIONS, SERVER_CAPABILITIES_DEFAULT, IIIFLayerOptions, ServerCapabilities } from "./types";
-import { computeServerCapabilities, templateUrl } from "./utils";
+import {
+  DEFAULT_OPTIONS,
+  SERVER_CAPABILITIES_DEFAULT,
+  IIIFLayerOptions,
+  ServerCapabilities,
+  TileUrlParams,
+} from "./types";
+import { IIIF_EVENTS } from "./event";
+import { computeServerCapabilities } from "./utils/server-capabilities";
+import { templateUrl } from "./utils/helper";
+import { projectPoint, projectSquare } from "./utils/projection";
 
 export class IIIFLayer extends TileLayer {
   // Layer options
@@ -107,11 +116,8 @@ export class IIIFLayer extends TileLayer {
       }
     });
 
-    // Reset tile sizes to handle non 256x256 IIIF tiles
-    this.on("tileload", (tile: TileEvent): void => {
-      tile.tile.style.width = `${tile.tile.naturalWidth}px`;
-      tile.tile.style.height = `${tile.tile.naturalHeight}px`;
-    });
+    // register events
+    this.registerEvents(map);
 
     return this;
   }
@@ -119,11 +125,16 @@ export class IIIFLayer extends TileLayer {
   onRemove(map: Map): this {
     // calling super
     super.onRemove(map);
+
     // Remove maxBounds set for this image
     if (this.options.setMaxBounds) {
       // bug in the type definition
       map.setMaxBounds((null as unknown) as L.LatLngBoundsExpression);
     }
+
+    // unregister events
+    this.unRegisterEvents(map);
+
     return this;
   }
 
@@ -131,19 +142,24 @@ export class IIIFLayer extends TileLayer {
    * Generate the tile IIIF url based on the tile coordinates
    */
   public getTileUrl(coords: L.Coords): string {
+    const z = coords["z"];
     const x = coords["x"];
     const y = coords["y"];
-    const z = coords["z"];
-
     const zoomLayer = this.zoomLayers.find(layer => layer.zoom === z);
     if (!zoomLayer) throw new Error(`Can't create tile for zoom ${z}`);
+
+    // Handle rotation
+    const unprojectedSquare = projectSquare(-1 * this.options.rotation, {
+      bottomLeft: { x, y },
+      topRight: { x: x + 1, y: y + 1 },
+    });
 
     const tileSizeX = this.options.tileSize.x / zoomLayer.scale;
     const tileSizeY = this.options.tileSize.y / zoomLayer.scale;
 
     // Compute the image region / bbox NW/SE
-    let minX = Math.min(x * tileSizeX, this.width);
-    let minY = Math.min(y * tileSizeY, this.height);
+    let minX = Math.min(unprojectedSquare.bottomLeft.x * tileSizeX, this.width);
+    let minY = Math.min(unprojectedSquare.bottomLeft.y * tileSizeY, this.height);
     let maxX = Math.min(minX + tileSizeX, this.width);
     let maxY = Math.min(minY + tileSizeY, this.height);
 
@@ -159,12 +175,20 @@ export class IIIFLayer extends TileLayer {
     const params = {
       format: this.options.tileFormat,
       quality: this.options.quality,
-      rotation: this.options.rotation,
-      mirroring: this.options.mirroring ? "!" : "",
-      size: [maxX - minX, maxY - minY].map(s => Math.ceil(s * zoomLayer.scale)).join(","),
-      region: [minX, minY, maxX - minX, maxY - minY].join(","),
+      mirroring: this.options.mirroring,
+      region: [minX, minY, Math.abs(maxX - minX), Math.abs(maxY - minY)],
+      rotation: 360 - this.options.rotation,
+      size: [Math.abs(maxX - minX), Math.abs(maxY - minY)].map(s => Math.ceil(s * zoomLayer.scale)) as [number, number],
     };
-    return L.Util.template(this._url, params);
+
+    return L.Util.template(this._url, {
+      format: params.format,
+      quality: params.quality,
+      mirroring: params.mirroring ? "!" : "",
+      region: params.region.join(","),
+      rotation: params.rotation,
+      size: params.size.join(","),
+    });
   }
 
   protected _isValidTile(coords: L.Coords) {
@@ -173,9 +197,21 @@ export class IIIFLayer extends TileLayer {
     const y = coords["y"];
     const z = coords["z"];
 
+    // Handle rotation (leaflet axis are reversed, so a 90 rotation is in fact a -90 rotation)
+    const unprojectedSquare = projectSquare(-1 * this.options.rotation, {
+      bottomLeft: { x, y },
+      topRight: { x: x + 1, y: y + 1 },
+    });
+
     if (this.options.minZoom <= z && z <= this.options.maxZoom) {
       const originalZoomLayer = this.zoomLayers.find(layer => layer.zoom === z);
-      if (0 <= x && x < originalZoomLayer.tiles[0] && 0 <= y && y < originalZoomLayer.tiles[1]) isValid = true;
+      if (
+        0 <= unprojectedSquare.bottomLeft.x &&
+        unprojectedSquare.bottomLeft.x < originalZoomLayer.tiles[0] &&
+        0 <= unprojectedSquare.bottomLeft.y &&
+        unprojectedSquare.bottomLeft.y < originalZoomLayer.tiles[1]
+      )
+        isValid = true;
     }
     return isValid;
   }
@@ -188,8 +224,13 @@ export class IIIFLayer extends TileLayer {
 
     const originalZoomLayer = this.zoomLayers.find(layer => layer.scale === 1);
     if (this.map !== null && originalZoomLayer) {
-      const sw = this.map.unproject(L.point(0, originalZoomLayer.height), 0);
-      const ne = this.map.unproject(L.point(originalZoomLayer.width, 0), 0);
+      const projectedSquare = projectSquare(this.options.rotation, {
+        bottomLeft: { x: 0, y: originalZoomLayer.height },
+        topRight: { x: originalZoomLayer.width, y: 0 },
+      });
+
+      const sw = this.map.unproject(L.point(projectedSquare.bottomLeft), 0);
+      const ne = this.map.unproject(L.point(projectedSquare.topRight), 0);
       result = L.latLngBounds(sw, ne);
     }
 
@@ -219,5 +260,72 @@ export class IIIFLayer extends TileLayer {
     // Setting the min /max zoom in the options & map
     this.map.setMaxZoom(this.zoomLayers[this.zoomLayers.length - 1].zoom);
     this.map.setMinZoom(this.zoomLayers[0].zoom);
+  }
+
+  private registerEvents(map: Map): void {
+    this.on("tileload", this.onTileLoadStyle);
+    map.on(IIIF_EVENTS.CHANGE_FORMAT, (e: any) => this.changeFormat(e.value));
+    map.on(IIIF_EVENTS.CHANGE_QUALITY, (e: any) => this.changeQuality(e.value));
+    map.on(IIIF_EVENTS.CHANGE_ROTATION, (e: any) => this.changeRotation(e.value));
+    map.on(IIIF_EVENTS.CHANGE_MIRRORING, (e: any) => this.changeMirroring(e.value));
+  }
+
+  private unRegisterEvents(map: Map): void {
+    this.off("tileload", this.onTileLoadStyle);
+    map.off(IIIF_EVENTS.CHANGE_FORMAT, (e: any) => this.changeFormat(e.value));
+    map.off(IIIF_EVENTS.CHANGE_QUALITY, (e: any) => this.changeQuality(e.value));
+    map.off(IIIF_EVENTS.CHANGE_ROTATION, (e: any) => this.changeRotation(e.value));
+    map.off(IIIF_EVENTS.CHANGE_MIRRORING, (e: any) => this.changeMirroring(e.value));
+  }
+
+  private changeFormat(value: string): void {
+    this.options.tileFormat = value;
+    this.redraw();
+  }
+
+  private changeQuality(value: string): void {
+    this.options.quality = value;
+    this.redraw();
+  }
+
+  private changeRotation(value: number): void {
+    this.options.rotation = value;
+    // Set max bound
+    if (this.options.setMaxBounds) {
+      this.map.setMaxBounds(this.getBounds());
+    }
+    this.redraw();
+  }
+
+  private changeMirroring(value: boolean): void {
+    this.options.mirroring = value;
+    this.redraw();
+  }
+
+  /**
+   * Handle border of images when the tiles are not full.
+   */
+  private onTileLoadStyle(tile: TileEvent): void {
+    if (tile.tile.naturalWidth !== this.options.tileSize.x || tile.tile.naturalHeight !== this.options.tileSize.y) {
+      tile.tile.style.width = `${tile.tile.naturalWidth}px`;
+      tile.tile.style.height = `${tile.tile.naturalHeight}px`;
+
+      const rotation = this.options.rotation % 360;
+      switch (rotation) {
+        case 90:
+          tile.tile.style.top = `${this.options.tileSize.x - tile.tile.naturalHeight}px`;
+          tile.tile.style.right = `${this.options.tileSize.y - tile.tile.naturalWidth}px`;
+          break;
+        case 180:
+          tile.tile.style.top = `${this.options.tileSize.x - tile.tile.naturalHeight}px`;
+          tile.tile.style.left = `${this.options.tileSize.y - tile.tile.naturalWidth}px`;
+          break;
+        case 270:
+          tile.tile.style.top = "0";
+          tile.tile.style.bottom = `${this.options.tileSize.x - tile.tile.naturalHeight}px`;
+          tile.tile.style.left = `${this.options.tileSize.y - tile.tile.naturalWidth}px`;
+          break;
+      }
+    }
   }
 }

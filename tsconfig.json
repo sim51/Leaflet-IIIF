@@ -6,6 +6,7 @@
     "declaration": true,
     "target": "es6",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["dom", "dom.iterable", "esnext"]

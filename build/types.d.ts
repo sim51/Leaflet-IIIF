@@ -35,7 +35,16 @@ interface IIIFControlAction {
 export interface IIIFControlOptions extends ControlOptions {
     quality: IIIFControlAction;
     format: IIIFControlAction;
+    rotation: IIIFControlAction;
     mirroring: IIIFControlAction;
 }
 export declare const DEFAULT_CONTROL_OPTIONS: IIIFControlOptions;
+export interface TileUrlParams {
+    format: string;
+    quality: string;
+    mirroring: boolean;
+    region: [number, number, number, number];
+    rotation: number;
+    size: [number, number];
+}
 export {};

@@ -42,4 +42,14 @@ export declare class IIIFLayer extends TileLayer {
      * Compute the different images by zoom level
      */
     private computeZoomLayers;
+    private registerEvents;
+    private unRegisterEvents;
+    private changeFormat;
+    private changeQuality;
+    private changeRotation;
+    private changeMirroring;
+    /**
+     * Handle border of images when the tiles are not full.
+     */
+    private onTileLoadStyle;
 }

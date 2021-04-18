@@ -1,11 +1,5 @@
 import L from "leaflet";
-import { SERVER_CAPABILITIES_DEFAULT, ServerCapabilities } from "./types";
-/**
- * Construct the tiles url template from the iiif image url
- */
-export function templateUrl(url: string): string {
-  return url.replace("info.json", "{region}/{size}/{mirroring}{rotation}/{quality}.{format}");
-}
+import { SERVER_CAPABILITIES_DEFAULT, ServerCapabilities } from "../types";
 
 /**
  * Compute the server capabilities from the response of the info.
@@ -111,16 +105,22 @@ function computeServerCapabilitiesForV2(data: any): ServerCapabilities {
   }
 
   // Formats
-  if (data.profile[1].formats) capabilities.formats = data.profile[1].formats;
+  if (data.profile[1] && data.profile[1].formats) capabilities.formats = data.profile[1].formats;
 
   // Qualities
-  if (data.profile[1].qualities) capabilities.qualities = data.profile[1].qualities;
+  if (data.profile[1] && data.profile[1].qualities) capabilities.qualities = data.profile[1].qualities;
 
   // Rotation
-  if (data.profile[1].supports && data.profile[1].supports.includes("rotationBy90s")) capabilities.rotation = true;
+  if (
+    data.profile[1] &&
+    data.profile[1].supports &&
+    (data.profile[1].supports.includes("rotationBy90s") || data.profile[1].supports.includes("rotationArbitrary"))
+  )
+    capabilities.rotation = true;
 
   // Mirroring
-  if (data.profile[1].supports && data.profile[1].supports.includes("mirroring")) capabilities.mirroring = true;
+  if (data.profile[1] && data.profile[1].supports && data.profile[1].supports.includes("mirroring"))
+    capabilities.mirroring = true;
 
   // Tiles size & scale factors
   if (data.tiles && data.tiles.length > -1) {
@@ -159,14 +159,22 @@ function computeServerCapabilitiesForV3(data: any): ServerCapabilities {
 
   // Extra format
   if (data.extraFormats && data.extraFormats instanceof Array)
-    capabilities.formats = capabilities.formats.concat(data.extraFormats);
+    capabilities.formats = capabilities.formats.concat(
+      data.extraFormats.filter(ef => !capabilities.formats.includes(ef)),
+    );
 
   // Extra qualities
   if (data.extraQualities && data.extraQualities instanceof Array)
-    capabilities.qualities = capabilities.qualities.concat(data.extraQualities);
+    capabilities.qualities = capabilities.qualities.concat(
+      data.extraQualities.filter(eq => !capabilities.qualities.includes(eq)),
+    );
 
   // Rotation
-  if (data.extraFeatures && data.extraFeatures.includes("rotationBy90s")) capabilities.rotation = true;
+  if (
+    data.extraFeatures &&
+    (data.extraFeatures.includes("rotationBy90s") || data.extraFeatures.includes("rotationArbitrary"))
+  )
+    capabilities.rotation = true;
 
   // Mirroring
   if (data.extraFeatures && data.extraFeatures.includes("mirroring")) capabilities.mirroring = true;

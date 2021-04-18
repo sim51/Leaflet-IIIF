@@ -1,3 +1,15 @@
+.leaflet-tile-container {
+  .leaflet-tile {
+    .leaflet-iiif-tile {
+      height: 100%;
+      width: 100%;
+
+      img {
+        flex-shrink: 0;
+      }
+    }
+  }
+}
 .leaflet-control-iiif {
   a {
     cursor: pointer;
@@ -12,6 +24,9 @@
   }
   a.leaflet-control-iiif-mirroring {
     background-image: url("./symmetry.svg?encoding=base64");
+  }
+  a.leaflet-control-iiif-rotation {
+    background-image: url("./rotate-circular-arrow-around-a-rotated-square.svg?encoding=base64");
   }
 
   ul {
@@ -45,5 +60,8 @@ div.leaflet-control-iiif[data-opened="leaflet-control-iiif-quality"] ul.leaflet-
   display: flex;
 }
 div.leaflet-control-iiif[data-opened="leaflet-control-iiif-format"] ul.leaflet-control-iiif-format {
+  display: flex;
+}
+div.leaflet-control-iiif[data-opened="leaflet-control-iiif-rotation"] ul.leaflet-control-iiif-rotation {
   display: flex;
 }
