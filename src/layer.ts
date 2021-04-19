@@ -177,7 +177,7 @@ export class IIIFLayer extends TileLayer {
       quality: this.options.quality,
       mirroring: this.options.mirroring,
       region: [minX, minY, Math.abs(maxX - minX), Math.abs(maxY - minY)],
-      rotation: 360 - this.options.rotation,
+      rotation: (360 - this.options.rotation) % 360,
       size: [Math.abs(maxX - minX), Math.abs(maxY - minY)].map(s => Math.ceil(s * zoomLayer.scale)) as [number, number],
     };
 
