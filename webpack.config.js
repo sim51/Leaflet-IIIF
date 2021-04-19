@@ -39,7 +39,7 @@ module.exports = {
     ],
   },
   externals: {
-    L: "leaflet",
+    leaflet: { amd: "leaflet", root: "L", commonjs: "leaflet", commonjs2: "leaflet" },
   },
   devServer: {
     contentBase: "./",
