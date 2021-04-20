@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="./../build/leaflet-iiif.js"></script>
+    <style>
+      body {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      div.map {
+        height: 50%;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="map" id="map0"></div>
+    <div class="map" id="map90"></div>
+    <div class="map" id="map180"></div>
+    <div class="map" id="map270"></div>
+
+    <script type="application/javascript">
+      const maps = [0, 90, 180, 270].map(value => {
+        const map = L.map("map" + value, { center: [0, 0], crs: L.CRS.Simple, zoom: 0, zoomControl: false });
+        const layer = L.tileLayer.iiif("https://ids.lib.harvard.edu/ids/iiif/43183405/info.json", {
+          rotation: value,
+        });
+        layer.addTo(map);
+        return map;
+      });
+
+      window.maps = maps;
+    </script>
+  </body>
+</html>

@@ -103,7 +103,7 @@ class IIIFLayer extends leaflet_1.TileLayer {
                 // server capabilities
                 this.server = server_capabilities_1.computeServerCapabilities(data);
                 // Settings
-                this.options = Object.assign(this.options, types_1.DEFAULT_OPTIONS, 
+                this.options = leaflet_1.default.Util.setOptions(this, Object.assign({}, types_1.DEFAULT_OPTIONS, 
                 // Server pref
                 {
                     tileSize: this.server.tileSize,
@@ -113,7 +113,7 @@ class IIIFLayer extends leaflet_1.TileLayer {
                     maxZoom: this.server.maxZoom,
                 }, 
                 // User's options
-                options);
+                options));
                 resolve();
             }
             catch (e) {

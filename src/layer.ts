@@ -72,19 +72,22 @@ export class IIIFLayer extends TileLayer {
         this.server = computeServerCapabilities(data);
 
         // Settings
-        this.options = Object.assign(
-          this.options,
-          DEFAULT_OPTIONS,
-          // Server pref
-          {
-            tileSize: this.server.tileSize,
-            tileFormat: this.server.formats[0],
-            quality: this.server.qualities.includes("native") ? "native" : "default",
-            minZoom: this.server.minZoom,
-            maxZoom: this.server.maxZoom,
-          },
-          // User's options
-          options,
+        this.options = L.Util.setOptions(
+          this,
+          Object.assign(
+            {},
+            DEFAULT_OPTIONS,
+            // Server pref
+            {
+              tileSize: this.server.tileSize,
+              tileFormat: this.server.formats[0],
+              quality: this.server.qualities.includes("native") ? "native" : "default",
+              minZoom: this.server.minZoom,
+              maxZoom: this.server.maxZoom,
+            },
+            // User's options
+            options,
+          ),
         );
         resolve();
       } catch (e) {

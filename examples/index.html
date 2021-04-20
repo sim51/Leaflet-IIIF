@@ -14,14 +14,12 @@
         crs: L.CRS.Simple,
         zoom: 0,
       });
-      const layer = L.tileLayer.iiif("https://ids.lib.harvard.edu/ids/iiif/43183405/info.json", {
-        maxZoom: 2,
-        rotation: 90,
-        setMaxBounds: true,
-      });
+      const layer = L.tileLayer.iiif("https://ids.lib.harvard.edu/ids/iiif/43183405/info.json", {});
       layer.addTo(map);
       const control = L.control.iiif(layer);
       control.addTo(map);
+
+      window.map = map;
     </script>
   </body>
 </html>

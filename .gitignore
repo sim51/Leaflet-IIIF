@@ -1,3 +1,6 @@
 node_modules/
 package-lock.json
 yarn.lock
+# ignore e2e images
+/test/e2e/screenshots/*.current.png
+/test/e2e/screenshots/*.diff.png

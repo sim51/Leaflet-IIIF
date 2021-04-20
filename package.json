@@ -4,14 +4,19 @@
   "description": "A Leaflet plugin for viewing IIIF sources",
   "main": "build/leaflet-iiif.js",
   "typings": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
   "directories": {
     "example": "examples"
   },
   "scripts": {
+    "compile": "./node_modules/.bin/tsc",
     "build": "npm run compile && webpack --progress && webpack --progress --mode production",
     "start": "webpack serve",
-    "compile": "./node_modules/.bin/tsc",
-    "test": "mocha --require jsdom-global/register --require ts-node/register ./test/unit/**/*.ts"
+    "test": "mocha --require jsdom-global/register --require ts-node/register ./test/unit/**/*.ts",
+    "e2e:test": "mocha --require ts-node/register ./test/e2e/**/*.spec.ts --exit",
+    "e2e:generate": "node -r ts-node/register test/e2e/generate.ts"
   },
   "repository": {
     "type": "git",
@@ -36,6 +41,9 @@
     "jsdom": "16.5.3",
     "jsdom-global": "3.0.2",
     "mocha": "^8.3.2",
+    "pixelmatch": "^5.2.1",
+    "pngjs": "^6.0.0",
+    "puppeteer": "^8.0.0",
     "sass": "^1.32.8",
     "sass-loader": "^11.0.1",
     "style-loader": "^2.0.0",
