@@ -5,9 +5,6 @@
   "main": "./dist/umd/index.min.js",
   "module": "./dist/esm/index.js",
   "typings": "./dist/typing/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "directories": {
     "example": "examples"
   },
