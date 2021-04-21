@@ -1,6 +1,3 @@
-import { TileUrlParams } from "../types";
-import L from "leaflet";
-
 /**
  * Construct the tiles url template from the iiif image url
  */

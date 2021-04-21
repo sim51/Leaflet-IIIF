@@ -1,15 +1,9 @@
-import L, { Map, Point, TileLayer, TileLayerOptions, TileEvent, Util } from "leaflet";
-import {
-  DEFAULT_OPTIONS,
-  SERVER_CAPABILITIES_DEFAULT,
-  IIIFLayerOptions,
-  ServerCapabilities,
-  TileUrlParams,
-} from "./types";
+import L, { Map, TileLayer, TileEvent } from "leaflet";
+import { DEFAULT_OPTIONS, SERVER_CAPABILITIES_DEFAULT, IIIFLayerOptions, ServerCapabilities } from "./types";
 import { IIIF_EVENTS } from "./event";
 import { computeServerCapabilities } from "./utils/server-capabilities";
 import { templateUrl } from "./utils/helper";
-import { projectPoint, projectSquare } from "./utils/projection";
+import { projectSquare } from "./utils/projection";
 
 export class IIIFLayer extends TileLayer {
   // Layer options
@@ -26,8 +20,8 @@ export class IIIFLayer extends TileLayer {
   server: ServerCapabilities = SERVER_CAPABILITIES_DEFAULT;
 
   // Dimension of the image
-  height: number = 0;
-  width: number = 0;
+  height = 0;
+  width = 0;
 
   zoomLayers: Array<{
     // Map zoom level
@@ -58,11 +52,12 @@ export class IIIFLayer extends TileLayer {
    * compute the server capabilities and set the initial state.
    */
   initialize(url: string, options: Partial<IIIFLayerOptions>): this {
+    // eslint-disable-next-line no-async-promise-executor
     this.initializePromise = new Promise(async (resolve, reject) => {
       try {
         // Calling the iiif info endpoint
         const response = await fetch(url);
-        const data: any = await response.json();
+        const data = await response.json();
 
         // saving the image dimension
         this.height = data.height;
@@ -162,9 +157,9 @@ export class IIIFLayer extends TileLayer {
 
     // Compute the image region / bbox NW/SE
     let minX = Math.min(unprojectedSquare.bottomLeft.x * tileSizeX, this.width);
-    let minY = Math.min(unprojectedSquare.bottomLeft.y * tileSizeY, this.height);
+    const minY = Math.min(unprojectedSquare.bottomLeft.y * tileSizeY, this.height);
     let maxX = Math.min(minX + tileSizeX, this.width);
-    let maxY = Math.min(minY + tileSizeY, this.height);
+    const maxY = Math.min(minY + tileSizeY, this.height);
 
     // In mirroring, if we do the diff with the width,
     // we then have the bbox NE/SO,
@@ -194,7 +189,7 @@ export class IIIFLayer extends TileLayer {
     });
   }
 
-  protected _isValidTile(coords: L.Coords) {
+  protected _isValidTile(coords: L.Coords): boolean {
     let isValid = false;
     const x = coords["x"];
     const y = coords["y"];
@@ -267,18 +262,22 @@ export class IIIFLayer extends TileLayer {
 
   private registerEvents(map: Map): void {
     this.on("tileload", this.onTileLoadStyle);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     map.on(IIIF_EVENTS.CHANGE_FORMAT, (e: any) => this.changeFormat(e.value));
     map.on(IIIF_EVENTS.CHANGE_QUALITY, (e: any) => this.changeQuality(e.value));
     map.on(IIIF_EVENTS.CHANGE_ROTATION, (e: any) => this.changeRotation(e.value));
     map.on(IIIF_EVENTS.CHANGE_MIRRORING, (e: any) => this.changeMirroring(e.value));
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   private unRegisterEvents(map: Map): void {
     this.off("tileload", this.onTileLoadStyle);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     map.off(IIIF_EVENTS.CHANGE_FORMAT, (e: any) => this.changeFormat(e.value));
     map.off(IIIF_EVENTS.CHANGE_QUALITY, (e: any) => this.changeQuality(e.value));
     map.off(IIIF_EVENTS.CHANGE_ROTATION, (e: any) => this.changeRotation(e.value));
     map.off(IIIF_EVENTS.CHANGE_MIRRORING, (e: any) => this.changeMirroring(e.value));
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   private changeFormat(value: string): void {

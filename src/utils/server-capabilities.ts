@@ -1,6 +1,8 @@
 import L from "leaflet";
 import { SERVER_CAPABILITIES_DEFAULT, ServerCapabilities } from "../types";
 
+/* eslint-disable  @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any */
+
 /**
  * Compute the server capabilities from the response of the info.
  */
@@ -191,3 +193,5 @@ function computeServerCapabilitiesForV3(data: any): ServerCapabilities {
 
   return capabilities;
 }
+
+/* eslint-enable  @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any */

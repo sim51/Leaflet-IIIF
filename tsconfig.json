@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./build",
+    "outDir": "./dist/esm",
     "sourceMap": true,
     "declaration": true,
+    "declarationDir": "./dist/typings",
     "target": "es6",
     "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "es6",
     "lib": ["dom", "dom.iterable", "esnext"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "files": ["./src/index.ts"]
 }

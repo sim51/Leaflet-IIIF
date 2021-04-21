@@ -148,7 +148,7 @@ export class IIIFControl extends Control {
     innerHTML: string,
     fn: () => void,
   ): HTMLElement {
-    var link: HTMLElement = L.DomUtil.create("a", className, container);
+    const link: HTMLElement = L.DomUtil.create("a", className, container);
     link.title = title;
     link.innerHTML = innerHTML;
     L.DomEvent.on(link, "mousedown dblclick", L.DomEvent.stopPropagation).on(link, "click", fn, this);

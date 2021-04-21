@@ -1,33 +1,35 @@
 const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 let production = process.argv.indexOf("--mode");
 production = production !== -1 ? process.argv[production + 1] === "production" : false;
 
 module.exports = {
-  name: "leaflet-iiif",
   mode: production ? "production" : "none",
-  devtool: "source-map",
-  entry: "./src/index.ts",
+  entry: {
+    index: [path.resolve(__dirname, "./dist/esm/index.js"), path.resolve(__dirname, "./src/assets/index.scss")],
+  },
   output: {
-    filename: production ? "leaflet-iiif.min.js" : "leaflet-iiif.js",
-    path: path.join(__dirname, "build"),
+    path: path.resolve(__dirname, "./dist/umd"),
+    filename: production ? "[name].min.js" : "[name].js",
     library: "leaflet-iiif",
     libraryTarget: "umd",
+    globalObject: "this",
   },
-  resolve: {
-    extensions: [".ts", ".js"],
-    modules: ["src", "node_modules"],
-  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "../[name].css",
+    }),
+  ],
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: "ts-loader",
+        test: /\.js$/,
+        use: "babel-loader",
       },
       {
         test: /\.s[ac]ss$/i,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
         test: /\.svg$/,
