@@ -16,7 +16,8 @@
     "start": "npm run build  && concurrently \"npm run compile -- -w\" \"npm run lint -- -w\" \"webpack serve\" ",
     "test": "TS_NODE_PROJECT='./tsconfig.node.json' mocha --require jsdom-global/register --require ts-node/register ./test/unit/**/*.ts",
     "e2e:test": "TS_NODE_PROJECT='./tsconfig.node.json' mocha --require ts-node/register ./test/e2e/**/*.spec.ts --exit",
-    "e2e:generate": "TS_NODE_PROJECT='./tsconfig.node.json' node -r ts-node/register test/e2e/generate.ts"
+    "e2e:generate": "TS_NODE_PROJECT='./tsconfig.node.json' node -r ts-node/register test/e2e/generate.ts",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
