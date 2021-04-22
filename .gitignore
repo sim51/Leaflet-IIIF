@@ -1,5 +1,4 @@
 node_modules/
-dist/
 # ignore e2e images
 /test/e2e/screenshots/*.current.png
 /test/e2e/screenshots/*.diff.png
