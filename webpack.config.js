@@ -1,31 +1,45 @@
 const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-let production = process.argv.indexOf("--mode");
-production = production !== -1 ? process.argv[production + 1] === "production" : false;
-
 module.exports = {
-  mode: production ? "production" : "none",
+  mode: "none",
   entry: {
-    index: [path.resolve(__dirname, "./dist/esm/index.js"), path.resolve(__dirname, "./src/assets/index.scss")],
+    "leaflet-iiif": ["./src/index.ts", "./src/assets/index.scss"],
+    "leaflet-iiif.min": "./src/index.ts",
   },
   output: {
-    path: path.resolve(__dirname, "./dist/umd"),
-    filename: production ? "[name].min.js" : "[name].js",
+    path: path.resolve(__dirname, "./lib/umd"),
+    filename: "[name].js",
     library: "leaflet-iiif",
     libraryTarget: "umd",
     globalObject: "this",
   },
+  devtool: "source-map",
   plugins: [
     new MiniCssExtractPlugin({
       filename: "../[name].css",
     }),
   ],
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        include: /\.min\.js$/,
+      }),
+    ],
+  },
+  stats: {
+    errorDetails: true,
+  },
+  resolve: {
+    extensions: [".ts"],
+  },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: "babel-loader",
+        test: /\.ts$/,
+        use: "ts-loader",
       },
       {
         test: /\.s[ac]ss$/i,

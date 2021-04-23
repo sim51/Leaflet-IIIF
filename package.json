@@ -2,22 +2,22 @@
   "name": "leaflet-iiif",
   "version": "3.0.0",
   "description": "A Leaflet plugin for viewing IIIF sources",
-  "main": "./dist/umd/index.min.js",
-  "module": "./dist/esm/index.js",
-  "typings": "./dist/typing/index.d.ts",
+  "main": "./lib/umd/index.min.js",
+  "module": "./lib/esm/index.js",
+  "typings": "./lib/typings/index.d.ts",
   "directories": {
     "example": "examples"
   },
   "scripts": {
-    "clean": "rimraf dist/",
+    "clean": "rimraf lib/",
     "lint": "esw . --ext .ts",
     "compile": "tsc",
-    "build": "npm run clean && npm run lint && npm run compile && webpack --progress && webpack --progress --mode production",
+    "build": "npm run clean && npm run lint && npm run compile && webpack --progress",
     "start": "npm run build  && concurrently \"npm run compile -- -w\" \"npm run lint -- -w\" \"webpack serve\" ",
     "test": "TS_NODE_PROJECT='./tsconfig.node.json' mocha --require jsdom-global/register --require ts-node/register ./test/unit/**/*.ts",
     "e2e:test": "TS_NODE_PROJECT='./tsconfig.node.json' mocha --require ts-node/register ./test/e2e/**/*.spec.ts --exit",
     "e2e:generate": "TS_NODE_PROJECT='./tsconfig.node.json' node -r ts-node/register test/e2e/generate.ts",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -41,8 +41,6 @@
     "@types/mocha": "^8.2.2",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^8.2.2",
     "concurrently": "^6.0.2",
     "css-loader": "^5.2.1",
     "eslint": "^7.24.0",
@@ -59,6 +57,8 @@
     "sass-loader": "^11.0.1",
     "style-loader": "^2.0.0",
     "svg-url-loader": "^7.1.1",
+    "terser-webpack-plugin": "^5.1.1",
+    "ts-loader": "^9.1.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3",
     "webpack": "^5.31.2",

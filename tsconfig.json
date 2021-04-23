@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist/esm",
+    "outDir": "./lib/esm",
     "sourceMap": true,
     "declaration": true,
-    "declarationDir": "./dist/typings",
+    "declarationDir": "./lib/typings",
     "target": "es6",
     "esModuleInterop": true,
     "module": "es6",
