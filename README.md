@@ -2,7 +2,7 @@
 
 A Leaflet plugin for viewing IIIF images.
 
-You can find some online examples here : https://sim51.github.io/react-sigma-v2/examples/
+You can find some online examples here : https://sim51.github.io/Leaflet-IIIF/examples/
 
 This project is a fork of http://mejackreed.github.io/Leaflet-IIIF/
 It's a complete rewrite of the project with typescript and some enhancements :
@@ -36,7 +36,7 @@ import { IIIFLayer, IIIFControl, ...} from "ow-leaflet-iiif";
 You can also import just the components you need, they are exposed under the folder `./lib/esm` :
 
 ```javascript
-import { IIIFLayer, ...} from "react-sigma-v2/lib/esm/layer";
+import { IIIFLayer, ...} from "ow-leaflet-iiif/lib/esm/layer";
 ```
 
 For the css, you need to import the file `./lib/leaflet-iiif.css`.
