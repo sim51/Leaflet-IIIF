@@ -8,18 +8,12 @@
     <script src="./../lib/umd/leaflet-iiif.js"></script>
   </head>
   <body>
-    <div id="map"></div>
-    <script type="application/javascript">
-      const map = L.map("map", {
-        center: [0, 0],
-        crs: L.CRS.Simple,
-        zoom: 0,
-      });
-      const layer = L.tileLayer.iiif("https://ids.lib.harvard.edu/ids/iiif/43183405/info.json", {});
-      layer.addTo(map);
-      const control = L.control.iiif(layer);
-      control.addTo(map);
-      window.map = map;
-    </script>
+    <h1>List of examples</h1>
+    <ul>
+      <li><a href="simple.html">Simple example</a>
+      <li><a href="rotation.html">Rotation example</a>
+      <li><a href="manifest.html">Manifest example</a>
+      <li><a href="multiples.html">Multiples example</a>
+    </ul>
   </body>
 </html>

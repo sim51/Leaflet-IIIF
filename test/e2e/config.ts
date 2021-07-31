@@ -12,7 +12,7 @@ export type Tests = Array<{
 export const tests: Tests = [
   {
     name: "default",
-    url: "http://localhost:8080/examples/index.html",
+    url: "http://localhost:8080/examples/simple.html",
     scenario: async (_browser: Browser, page: Page): Promise<void> => {
       // waiting for images
       await page.waitForSelector("img.leaflet-tile-loaded");
@@ -21,7 +21,7 @@ export const tests: Tests = [
   },
   {
     name: "quality",
-    url: "http://localhost:8080/examples/index.html",
+    url: "http://localhost:8080/examples/simple.html",
     scenario: async (_browser: Browser, page: Page): Promise<void> => {
       // waiting for images
       await page.waitForSelector("img.leaflet-tile-loaded");

@@ -1,6 +1,6 @@
 {
-  "name": "leaflet-iiif",
-  "version": "3.0.0",
+  "name": "ow-leaflet-iiif",
+  "version": "1.0.0S",
   "description": "A Leaflet plugin for viewing IIIF sources",
   "main": "./lib/umd/leaflet-iiif.min.js",
   "module": "./lib/esm/",
@@ -35,9 +35,9 @@
   "author": "Jack Reed",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mejackreed/Leaflet-IIIF/issues"
+    "url": "https://github.com/sim51/Leaflet-IIIF/issues"
   },
-  "homepage": "https://github.com/mejackreed/Leaflet-IIIF",
+  "homepage": "https://sim51.github.io/Leaflet-IIIF/",
   "devDependencies": {
     "@babel/core": "^7.13.16",
     "@types/leaflet": "^1.7.0",
@@ -54,6 +54,7 @@
     "eslint-watch": "^7.0.0",
     "jsdom": "16.5.3",
     "jsdom-global": "3.0.2",
+    "leaflet": "^1.7.1",
     "mini-css-extract-plugin": "^1.5.0",
     "mocha": "^8.3.2",
     "pixelmatch": "^5.2.1",
@@ -72,7 +73,7 @@
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2"
   },
-  "dependencies": {
+  "peerDependencies": {
     "leaflet": "^1.7.1"
   }
 }
