@@ -2,3 +2,4 @@ node_modules/
 # ignore e2e images
 /test/e2e/screenshots/*.current.png
 /test/e2e/screenshots/*.diff.png
+/lib
