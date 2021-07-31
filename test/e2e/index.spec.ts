@@ -3,6 +3,8 @@ import path from "path";
 import { imageDiff, startExampleServer, takeScreenshots } from "./utils";
 import { tests } from "./config";
 
+const DEFAULT_TEST_THRESHOLD = 0.0005;
+
 before(function (done) {
   // No mocha timeout, but there is a timeout of 30sec in puppeteer loading pages
   this.timeout(0);
@@ -28,8 +30,8 @@ describe("Compare screenshots", () => {
         path.resolve(`./test/e2e/screenshots/${test.name}.diff.png`),
       );
       assert(
-        result.percent <= (test.failureThreshold || 0),
-        `There is a diff over ${test.failureThreshold || 0}  (${result.percent}) on ${test.name}, please check "${test.name}.diff.png"`,
+        result.percent <= (test.failureThreshold || DEFAULT_TEST_THRESHOLD),
+        `There is a diff over ${test.failureThreshold || DEFAULT_TEST_THRESHOLD}  (${result.percent}) on ${test.name}, please check "${test.name}.diff.png"`,
       );
     });
   });
