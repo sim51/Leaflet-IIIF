@@ -46,7 +46,10 @@ describe("Utils - projections", () => {
       const randomRotation = Math.round(Math.random() * 360);
       const projected = projectPoint(randomRotation, point);
       const unprojected = projectPoint(-randomRotation, projected);
-      assert.deepEqual(unprojected, point);
+      // due to some rounds, calculus are not exact some time
+      // but are always closed
+      assert.equal(true, Math.abs(point.x - unprojected.x) <= 1, `${point.x} & ${unprojected.x} are really differents`);
+      assert.equal(true, Math.abs(point.y - unprojected.y) <= 1, `${point.x} & ${unprojected.x} are really differents`);
     });
   });
 
@@ -79,10 +82,27 @@ describe("Utils - projections", () => {
       const randomRotation = Math.round(Math.random() * 360);
       const projected = projectSquare(randomRotation, square);
       const unprojected = projectSquare(-randomRotation, projected);
-      assert.deepEqual(
-        unprojected,
-        square,
-        `Failed with square ${JSON.stringify(square)} and rotation ${randomRotation}`,
+      // due to some rounds, calculus are not exact some time
+      // but are always closed
+      assert.equal(
+        true,
+        Math.abs(square.bottomLeft.x - unprojected.bottomLeft.x) <= 1,
+        `${square.bottomLeft.x} & ${unprojected.bottomLeft.x} are really differents`,
+      );
+      assert.equal(
+        true,
+        Math.abs(square.bottomLeft.y - unprojected.bottomLeft.y) <= 1,
+        `${square.bottomLeft.y} & ${unprojected.bottomLeft.y} are really differents`,
+      );
+      assert.equal(
+        true,
+        Math.abs(square.topRight.x - unprojected.topRight.x) <= 1,
+        `${square.topRight.x} & ${unprojected.topRight.x} are really differents`,
+      );
+      assert.equal(
+        true,
+        Math.abs(square.topRight.y - unprojected.topRight.y) <= 1,
+        `${square.topRight.y} & ${unprojected.topRight.y} are really different`,
       );
     });
   });

@@ -5,12 +5,30 @@ import { DEFAULT_CONTROL_OPTIONS, IIIFControlOptions } from "./types";
 
 const CONTROL_NAME = "leaflet-control-iiif";
 
+/**
+ * Control for the {@link IIIFLayer | IIIF layer}
+ * Create a toolbar that allows you to control the layer's options.
+ *
+ * ```js
+ * const control = new IIIFControl(layer, options);
+ * control.addTo(map);
+ * ```
+ */
 export class IIIFControl extends Control {
-  // Control options
-  public options: IIIFControlOptions;
+  /**
+   * Options of the control (initialized by super)
+   */
+  public options!: IIIFControlOptions;
 
-  layer: IIIFLayer;
-  _container: HTMLElement;
+  /**
+   * The IIIF layer on which the control takes affect
+   */
+  public layer: IIIFLayer;
+
+  /**
+   * The created html div container that will contains the toolbar
+   */
+  private _container: HTMLElement;
 
   /**
    * IIIF Control constructor.
@@ -23,16 +41,19 @@ export class IIIFControl extends Control {
     this._container = L.DomUtil.create("div", `${CONTROL_NAME} leaflet-bar`);
   }
 
+  /**
+   * Add the control to Leaflet map
+   */
   onAdd(map: Map): HTMLElement {
     const container = this.getContainer();
-
+    if (!container) throw new Error("Container for control is undefined");
     // Waiting the init of the layer
     this.layer.initializePromise.then(() => {
       // Qualities
       if (this.options.quality.enabled === true) {
         const qualities = this.options.quality.values ? this.options.quality.values : this.layer.server.qualities;
         this.createActions(
-          container,
+          this._container,
           this.options.quality.title,
           `${CONTROL_NAME}-quality`,
           this.options.quality.html,

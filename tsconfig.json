@@ -1,15 +1,3 @@
 {
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./lib/esm",
-    "sourceMap": true,
-    "declaration": true,
-    "declarationDir": "./lib/typings",
-    "target": "es6",
-    "esModuleInterop": true,
-    "module": "es6",
-    "lib": ["dom", "dom.iterable", "esnext"]
-  },
-  "include": ["src/**/*.ts"],
-  "files": ["./src/index.ts"]
+  "extends": "./tsconfig.base.json"
 }

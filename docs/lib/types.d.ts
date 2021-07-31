@@ -1,7 +1,6 @@
 import { ControlOptions, Point, TileLayerOptions } from "leaflet";
-/**
- * List the capabilities of the server.
- */
+import { IIIFLayer } from "./layer";
+import { IIIFControl } from "./toolbar";
 export interface ServerCapabilities {
     version: string;
     formats: Array<string>;
@@ -13,9 +12,6 @@ export interface ServerCapabilities {
     tileSize: Point | null;
 }
 export declare const SERVER_CAPABILITIES_DEFAULT: ServerCapabilities;
-/**
- * Settings of the layer.
- */
 export interface IIIFLayerOptions extends TileLayerOptions {
     tileSize: Point;
     tileFormat: string;
@@ -24,6 +20,8 @@ export interface IIIFLayerOptions extends TileLayerOptions {
     mirroring: boolean;
     fitBounds: boolean;
     setMaxBounds: boolean;
+    minZoom: number;
+    maxZoom: number;
 }
 export declare const DEFAULT_OPTIONS: IIIFLayerOptions;
 interface IIIFControlAction {
@@ -39,12 +37,20 @@ export interface IIIFControlOptions extends ControlOptions {
     mirroring: IIIFControlAction;
 }
 export declare const DEFAULT_CONTROL_OPTIONS: IIIFControlOptions;
-export interface TileUrlParams {
-    format: string;
-    quality: string;
-    mirroring: boolean;
-    region: [number, number, number, number];
-    rotation: number;
-    size: [number, number];
+declare global {
+    interface LeafletIIFWindow {
+        Iiif: {
+            Event: unknown;
+        };
+        tileLayer: {
+            iiif: (url: string, options: IIIFLayerOptions) => IIIFLayer;
+        };
+        control: {
+            iiif: (layer: IIIFLayer, options: IIIFControlOptions) => IIIFControl;
+        };
+    }
+    interface Window {
+        L: LeafletIIFWindow;
+    }
 }
 export {};

@@ -1,26 +1,52 @@
 import L, { ControlOptions, Point, TileLayerOptions } from "leaflet";
+import { IIIFLayer } from "./layer";
+import { IIIFControl } from "./toolbar";
 
 /**
  * List the capabilities of the server.
  */
 export interface ServerCapabilities {
-  // IIIF version of the server (1.1, 2.0 or 3.0)
+  /**
+   * IIIF version of the server (1.1, 2.0 or 3.0)
+   */
   version: string;
-  // List of supported formats
+  /**
+   * List of supported formats
+   */
   formats: Array<string>;
-  // List of supported qualities
+  /**
+   * List of supported qualities
+   */
   qualities: Array<string>;
-  // Support 90s ratotation ?
+  /**
+   * Support 90s rotation ?
+   * @default false
+   */
   rotation: boolean;
-  // Support mirroring ?
+  /**
+   * Support mirroring ?
+   * @default false
+   */
   mirroring: boolean;
-  // min/max zoom (remated to Scale factors)
+  /**
+   * Min zoom (related to Scale factors)
+   * @default 0
+   */
   minZoom: number;
+  /**
+   * max zoom (related to Scale factors)
+   * @default 0
+   */
   maxZoom: number;
-  // Preferd tile size
+  /**
+   * Prefered tile size
+   */
   tileSize: Point | null;
 }
 
+/**
+ * Default values for server capabilties
+ */
 export const SERVER_CAPABILITIES_DEFAULT: ServerCapabilities = {
   version: "3.0",
   formats: [],
@@ -33,29 +59,60 @@ export const SERVER_CAPABILITIES_DEFAULT: ServerCapabilities = {
 };
 
 /**
- * Settings of the layer.
+ * Settings for {@link IIIFLayer | IIIF layer}
  */
 export interface IIIFLayerOptions extends TileLayerOptions {
-  // Size of the tile (as a square)
-  // If not specified and the server has a preference, we take it, otherwise 256
+  /**
+   * Size of the tile (as a square)
+   * If not specified and the server has a preference, we take it, otherwise 256
+   * @default 256
+   */
   tileSize: Point;
-  // Format of the tiles (ie png, jpg, ...).
-  // Default is 'jpg'
+  /**
+   * Format of the tiles (ie png, jpg, ...).
+   * @Default "jpg"
+   */
   tileFormat: string;
-  // Quality
+  /**
+   * Quality
+   * @default: "default"
+   */
   quality: string;
-  // Rotation (ex: 0, 90, 180, 270).
-  // Default: 0
+  /**
+   * Rotation (ex: 0, 90, 180, 270).
+   * @default 0
+   */
   rotation: number;
-  // Mirroring
-  // Default false
+  /**
+   * Mirroring
+   * @default false
+   */
   mirroring: boolean;
-  // When initialiazed the layer, do you want to see the full picture ?
+  /**
+   * When initialiazed the layer, do you want to see the full picture ?
+   * @default true
+   */
   fitBounds: boolean;
-  // Does the user can pan outside the image ?
+  /**
+   * Does the user can pan outside the image ?
+   * @default false
+   */
   setMaxBounds: boolean;
+  /**
+   * Min level zoom of the layer.
+   * @default 0
+   */
+  minZoom: number;
+  /**
+   * Max level zoom of the layer.
+   * @default 0
+   */
+  maxZoom: number;
 }
 
+/**
+ * Default values for {@link IIIFLayerOptions}
+ */
 export const DEFAULT_OPTIONS: IIIFLayerOptions = {
   tileSize: L.point(256, 256),
   tileFormat: "jpg",
@@ -69,14 +126,33 @@ export const DEFAULT_OPTIONS: IIIFLayerOptions = {
   zoomOffset: 0,
 };
 
+/**
+ * Configuration of an action on the control bar.
+ * An action is an entry on the toolbal like, quality, format, ...
+ */
 interface IIIFControlAction {
+  /**
+   * Does the action is enabled ?
+   */
   enabled: boolean;
+  /**
+   * Title of the action (used for title attribute in html)
+   */
   title: string;
+  /**
+   * The html code to display the action entry in the toolbar.
+   */
   html: string;
-  // if undefined, we take the one from the server
+  /**
+   * An optional list of possible values for this action.
+   * It's usefull for qualities, formats, ...
+   */
   values?: Array<string>;
 }
 
+/**
+ * Settings of {@link IIIFControl | IIIF control layer}
+ */
 export interface IIIFControlOptions extends ControlOptions {
   quality: IIIFControlAction;
   format: IIIFControlAction;
@@ -84,6 +160,9 @@ export interface IIIFControlOptions extends ControlOptions {
   mirroring: IIIFControlAction;
 }
 
+/**
+ * Default values for {@link IIIFControlOptions}
+ */
 export const DEFAULT_CONTROL_OPTIONS: IIIFControlOptions = {
   quality: {
     enabled: true,
@@ -107,11 +186,17 @@ export const DEFAULT_CONTROL_OPTIONS: IIIFControlOptions = {
   },
 };
 
-export interface TileUrlParams {
-  format: string;
-  quality: string;
-  mirroring: boolean;
-  region: [number, number, number, number];
-  rotation: number;
-  size: [number, number];
+declare global {
+  interface LeafletIIFWindow {
+    Iiif: { Event: unknown };
+    tileLayer: {
+      iiif: (url: string, options: IIIFLayerOptions) => IIIFLayer;
+    };
+    control: {
+      iiif: (layer: IIIFLayer, options: IIIFControlOptions) => IIIFControl;
+    };
+  }
+  interface Window {
+    L: LeafletIIFWindow;
+  }
 }

@@ -6,15 +6,16 @@ import { templateUrl } from "./utils/helper";
 import { projectSquare } from "./utils/projection";
 
 export class IIIFLayer extends TileLayer {
-  // Layer options
-  public options: IIIFLayerOptions;
+  // Layer options (initialized by super)
+  public options!: IIIFLayerOptions;
 
   // Leaflet map
   map: Map | null = null;
-  _url: string;
+  _url = "";
 
-  // Promise of the
-  initializePromise: Promise<void>;
+  // Promise of the call to the IIIF server to initialize the layer
+  // (initialized by the call to initialize that is done internally per leaflet)
+  initializePromise!: Promise<void>;
 
   // Server capabilities
   server: ServerCapabilities = SERVER_CAPABILITIES_DEFAULT;
@@ -50,44 +51,45 @@ export class IIIFLayer extends TileLayer {
   /**
    * Initialize the layer by calling the info endpoint of the image,
    * compute the server capabilities and set the initial state.
+   * @override
    */
   initialize(url: string, options: Partial<IIIFLayerOptions>): this {
-    // eslint-disable-next-line no-async-promise-executor
-    this.initializePromise = new Promise(async (resolve, reject) => {
-      try {
-        // Calling the iiif info endpoint
-        const response = await fetch(url);
-        const data = await response.json();
+    this.initializePromise = new Promise((resolve, reject) => {
+      fetch(url)
+        .then(response => {
+          response
+            .json()
+            .then(data => {
+              // saving the image dimension
+              this.height = data.height;
+              this.width = data.width;
 
-        // saving the image dimension
-        this.height = data.height;
-        this.width = data.width;
+              // server capabilities
+              this.server = computeServerCapabilities(data);
 
-        // server capabilities
-        this.server = computeServerCapabilities(data);
-
-        // Settings
-        this.options = L.Util.setOptions(
-          this,
-          Object.assign(
-            {},
-            DEFAULT_OPTIONS,
-            // Server pref
-            {
-              tileSize: this.server.tileSize,
-              tileFormat: this.server.formats[0],
-              quality: this.server.qualities.includes("native") ? "native" : "default",
-              minZoom: this.server.minZoom,
-              maxZoom: this.server.maxZoom,
-            },
-            // User's options
-            options,
-          ),
-        );
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
+              // Settings
+              this.options = L.Util.setOptions(
+                this,
+                Object.assign(
+                  {},
+                  DEFAULT_OPTIONS,
+                  // Server pref
+                  {
+                    tileSize: this.server.tileSize,
+                    tileFormat: this.server.formats[0],
+                    quality: this.server.qualities.includes("native") ? "native" : "default",
+                    minZoom: this.server.minZoom,
+                    maxZoom: this.server.maxZoom,
+                  },
+                  // User's options
+                  options,
+                ),
+              );
+              resolve();
+            })
+            .catch((e: Error) => reject(e));
+        })
+        .catch((e: Error) => reject(e));
     });
     return this;
   }
@@ -100,18 +102,20 @@ export class IIIFLayer extends TileLayer {
       // Compute image sizes
       this.computeZoomLayers();
 
-      // calling super after we compute all the zoom
       super.onAdd(map);
 
       // Fit bounds
       if (this.options.fitBounds) {
-        this.map.fitBounds(this.getBounds());
+        (this.map as Map).fitBounds(this.getBounds());
       }
 
       // Set max bound
       if (this.options.setMaxBounds) {
-        this.map.setMaxBounds(this.getBounds());
+        (this.map as Map).setMaxBounds(this.getBounds());
       }
+
+      // calling super after we compute all the zoom
+      // super.onAdd(map);
     });
 
     // register events
@@ -204,6 +208,7 @@ export class IIIFLayer extends TileLayer {
     if (this.options.minZoom <= z && z <= this.options.maxZoom) {
       const originalZoomLayer = this.zoomLayers.find(layer => layer.zoom === z);
       if (
+        originalZoomLayer &&
         0 <= unprojectedSquare.bottomLeft.x &&
         unprojectedSquare.bottomLeft.x < originalZoomLayer.tiles[0] &&
         0 <= unprojectedSquare.bottomLeft.y &&
@@ -256,8 +261,10 @@ export class IIIFLayer extends TileLayer {
       zoom++;
     }
     // Setting the min /max zoom in the options & map
-    this.map.setMaxZoom(this.zoomLayers[this.zoomLayers.length - 1].zoom);
-    this.map.setMinZoom(this.zoomLayers[0].zoom);
+    if (this.map !== null) {
+      this.map.setMaxZoom(this.zoomLayers[this.zoomLayers.length - 1].zoom);
+      this.map.setMinZoom(this.zoomLayers[0].zoom);
+    }
   }
 
   private registerEvents(map: Map): void {
@@ -293,7 +300,7 @@ export class IIIFLayer extends TileLayer {
   private changeRotation(value: number): void {
     this.options.rotation = value;
     // Set max bound
-    if (this.options.setMaxBounds) {
+    if (this.options.setMaxBounds && this.map !== null) {
       this.map.setMaxBounds(this.getBounds());
     }
     this.redraw();

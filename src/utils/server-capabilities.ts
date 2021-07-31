@@ -17,14 +17,11 @@ export function computeServerCapabilities(data: any): ServerCapabilities {
   switch (uri) {
     case "http://library.stanford.edu/iiif/image-api/1.1/context.json":
       return computeServerCapabilitiesForV1(data);
-      break;
     case "http://iiif.io/api/image/2/context.json":
       return computeServerCapabilitiesForV2(data);
-      break;
     case "http://iiif.io/api/image/3/context.json":
     default:
       return computeServerCapabilitiesForV3(data);
-      break;
   }
 }
 
@@ -162,13 +159,13 @@ function computeServerCapabilitiesForV3(data: any): ServerCapabilities {
   // Extra format
   if (data.extraFormats && data.extraFormats instanceof Array)
     capabilities.formats = capabilities.formats.concat(
-      data.extraFormats.filter(ef => !capabilities.formats.includes(ef)),
+      data.extraFormats.filter((ef: string) => !capabilities.formats.includes(ef)),
     );
 
   // Extra qualities
   if (data.extraQualities && data.extraQualities instanceof Array)
     capabilities.qualities = capabilities.qualities.concat(
-      data.extraQualities.filter(eq => !capabilities.qualities.includes(eq)),
+      data.extraQualities.filter((eq: string) => !capabilities.qualities.includes(eq)),
     );
 
   // Rotation
