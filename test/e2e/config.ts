@@ -25,14 +25,21 @@ export const tests: Tests = [
     scenario: async (_browser: Browser, page: Page): Promise<void> => {
       // waiting for images
       await page.waitForSelector("img.leaflet-tile-loaded");
+      console.log("quality - Tile loaded");
+
       await page.evaluate(() => {
-        const map = (window as any).map as Map;
-        return new Promise((resolve, _reject) => {
+        const map = ((window as unknown) as { map: Map }).map;
+        return new Promise<void>(resolve => {
           map.eachLayer(l =>
             l.on("loading", () => {
-              l.on("load", resolve);
+              console.log("quality - loading");
+              l.on("load", () => {
+                console.log("quality - load");
+                resolve();
+              });
             }),
           );
+          console.log("quality - Fire");
           map.fire("iiif:quality", { value: "bitonal" });
         });
       });
@@ -60,17 +67,22 @@ export const tests: Tests = [
       await page.waitForSelector("#map90 img.leaflet-tile-loaded");
       await page.waitForSelector("#map180 img.leaflet-tile-loaded");
       await page.waitForSelector("#map270 img.leaflet-tile-loaded");
+      console.log("rotation-mirror - Tiles loaded");
       await page.evaluate(() => {
-        const maps = (window as any).maps as Array<Map>;
+        const maps = ((window as unknown) as { maps: Array<Map> }).maps;
         return Promise.all(
           maps.map(map => {
-            return new Promise((resolve, _reject) => {
+            return new Promise<void>(resolve => {
               map.eachLayer(l =>
-                // wait for new tile event
-                l.on("loading", () => {
-                  l.on("load", resolve); // wait for tiles finished to be loaded
+                l.on("rotation-mirror - loading", () => {
+                  console.log("rotation-mirror - loading");
+                  l.on("load", () => {
+                    console.log("rotation-mirror - load");
+                    resolve();
+                  });
                 }),
               );
+              console.log("rotation-mirror - Fire");
               map.fire("iiif:mirroring", { value: true });
             });
           }),

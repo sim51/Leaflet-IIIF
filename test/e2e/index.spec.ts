@@ -5,24 +5,23 @@ import { tests } from "./config";
 
 const DEFAULT_TEST_THRESHOLD = 0.0005;
 
-before(function (done) {
+before(function(done) {
   // No mocha timeout, but there is a timeout of 30sec in puppeteer loading pages
   this.timeout(0);
 
   // starting the server with examples
-  startExampleServer().then((server) => {
+  startExampleServer().then(server => {
     console.log("~~~ Start generating screenshots ~~~");
-    takeScreenshots(tests, path.resolve(`./test/e2e/screenshots`), "current").then(() => {
-      console.log("~~~ End generating screenshots ~~~");
-      console.log();
-      // closing the server
-      server.close(done);
-    });
+    takeScreenshots(tests, path.resolve(`./test/e2e/screenshots`), "current")
+      .then(() => {
+        console.log("~~~ End generating screenshots ~~~");
+      })
+      .finally(() => server.close(done));
   });
 });
 
 describe("Compare screenshots", () => {
-  tests.forEach((test) => {
+  tests.forEach(test => {
     it(`Screenshots for "${test.name}" should be the same`, () => {
       const result = imageDiff(
         path.resolve(`./test/e2e/screenshots/${test.name}.valid.png`),
@@ -31,7 +30,9 @@ describe("Compare screenshots", () => {
       );
       assert(
         result.percent <= (test.failureThreshold || DEFAULT_TEST_THRESHOLD),
-        `There is a diff over ${test.failureThreshold || DEFAULT_TEST_THRESHOLD}  (${result.percent}) on ${test.name}, please check "${test.name}.diff.png"`,
+        `There is a diff over ${test.failureThreshold || DEFAULT_TEST_THRESHOLD}  (${result.percent}) on ${
+          test.name
+        }, please check "${test.name}.diff.png"`,
       );
     });
   });

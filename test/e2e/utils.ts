@@ -25,33 +25,66 @@ export async function takeScreenshots(tests: Tests, folder: string, suffix = "")
   });
 
   // for each pages
-  await Promise.all(
-    tests.map(test => {
-      return new Promise<void>(async (resolve, reject) => {
-        try {
-          // Open a new page
-          const page = await browser.newPage();
-          // Navigate to URL
-          await page.goto(test.url);
-          if (test.scenario) {
-            await test.scenario(browser, page);
-          }
-          // Taking the screenshot
-          setTimeout(async () => {
-            // Take the screenshot
-            await page.screenshot({ path: path.resolve(`${folder}/${test.name}.${suffix}.png`) });
-            console.log(`${test.url} saved in ${test.name}.${suffix}.png`);
-            resolve();
-          }, test.waitFor || 0);
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }),
-  );
+  try {
+    await Promise.all(
+      tests.map(test => {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise<void>(async (resolve, reject) => {
+          try {
+            // Open a new page
+            const page = await browser.newPage();
 
-  // Close the browser
-  await browser.close();
+            // Navigate to URL
+            try {
+              await page.goto(test.url);
+            } catch (e) {
+              reject(e);
+            }
+
+            // Run scenario
+            if (test.scenario) {
+              try {
+                await Promise.race([
+                  test.scenario(browser, page),
+                  new Promise((_resolve, reject) => {
+                    setTimeout(() => {
+                      console.log("scenario timeout");
+                      reject();
+                    }, 5000);
+                  }),
+                ]);
+              } catch (e) {
+                console.log("reject scenario");
+                reject(e);
+              }
+            }
+
+            // Taking the screenshot
+            console.log("Taking screenshot");
+            setTimeout(async () => {
+              // Take the screenshot
+              try {
+                await page.screenshot({ path: path.resolve(`${folder}/${test.name}.${suffix}.png`) });
+                console.log(`${test.url} saved in ${test.name}.${suffix}.png`);
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+            }, test.waitFor || 0);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }),
+    );
+  } catch (e) {
+    throw new Error();
+  } finally {
+    console.log("Closing browser");
+    // Close the browser
+    await browser.close();
+  }
+  return;
 }
 
 /**
