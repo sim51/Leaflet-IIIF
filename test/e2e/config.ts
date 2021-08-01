@@ -74,7 +74,7 @@ export const tests: Tests = [
           maps.map(map => {
             return new Promise<void>(resolve => {
               map.eachLayer(l =>
-                l.on("rotation-mirror - loading", () => {
+                l.on("loading", () => {
                   console.log("rotation-mirror - loading");
                   l.on("load", () => {
                     console.log("rotation-mirror - load");
