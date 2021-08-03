@@ -121,8 +121,8 @@ export const DEFAULT_OPTIONS: IIIFLayerOptions = {
   mirroring: false,
   fitBounds: true,
   setMaxBounds: false,
-  minZoom: 0,
-  maxZoom: 0,
+  minZoom: -2,
+  maxZoom: 2,
   zoomOffset: 0,
 };
 
