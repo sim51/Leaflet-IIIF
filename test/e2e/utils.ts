@@ -59,7 +59,7 @@ export async function takeScreenshots(tests: Tests, folder: string, suffix = "")
             }
 
             // Taking the screenshot
-            console.log("Taking screenshot");
+            console.log(`Taking screenshot for ${test.name}`);
             setTimeout(async () => {
               // Take the screenshot
               try {
@@ -67,10 +67,12 @@ export async function takeScreenshots(tests: Tests, folder: string, suffix = "")
                 console.log(`${test.url} saved in ${test.name}.${suffix}.png`);
                 resolve();
               } catch (e) {
+                console.log(`Failed to take screenshot for ${test.name}`);
                 reject(`Failed to take screenshot for ${test.name}`);
               }
             }, test.waitFor || 0);
           } catch (e) {
+            console.log(`Test ${test.name} fails with : ${e}`);
             reject(`Test ${test.name} fails with : ${e}`);
           }
         });
