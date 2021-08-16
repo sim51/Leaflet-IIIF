@@ -62,17 +62,17 @@ class IIIFLayer extends leaflet_1.TileLayer {
                     this.width = data.width;
                     this.server = server_capabilities_1.computeServerCapabilities(data);
                     this.options = leaflet_1.default.Util.setOptions(this, Object.assign({}, types_1.DEFAULT_OPTIONS, {
-                        tileSize: this.server.tileSize,
-                        tileFormat: this.server.formats[0],
-                        quality: this.server.qualities.includes("native") ? "native" : "default",
-                        minZoom: this.server.minZoom,
-                        maxZoom: this.server.maxZoom,
+                        tileSize: this.server.tileSize || types_1.DEFAULT_OPTIONS.tileSize,
+                        tileFormat: this.server.formats[0] || types_1.DEFAULT_OPTIONS.tileFormat,
+                        quality: this.server.qualities && this.server.qualities.includes("native") ? "native" : "default",
+                        minZoom: this.server.minZoom || types_1.DEFAULT_OPTIONS.minZoom,
+                        maxZoom: this.server.maxZoom || types_1.DEFAULT_OPTIONS.maxZoom,
                     }, options));
                     resolve();
                 })
-                    .catch((e) => reject(e));
+                    .catch((e) => reject(`Fail to fetch url ${url} : ${e}`));
             })
-                .catch((e) => reject(e));
+                .catch((e) => reject(`Fail to fetch url ${url} : ${e}`));
         });
         return this;
     }
@@ -524,7 +524,7 @@ exports.SERVER_CAPABILITIES_DEFAULT = {
     rotation: false,
     mirroring: false,
     tileSize: null,
-    minZoom: 0,
+    minZoom: -2,
     maxZoom: 0,
 };
 exports.DEFAULT_OPTIONS = {
