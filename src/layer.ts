@@ -87,9 +87,9 @@ export class IIIFLayer extends TileLayer {
               );
               resolve();
             })
-            .catch((e: Error) => reject(e));
+            .catch((e: Error) => reject(`Fail to fetch url ${url} : ${e}`));
         })
-        .catch((e: Error) => reject(e));
+        .catch((e: Error) => reject(`Fail to fetch url ${url} : ${e}`));
     });
     return this;
   }
