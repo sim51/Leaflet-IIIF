@@ -64,7 +64,7 @@ You can check the available control's options [here](https://sim51.github.io/Lea
 ## Npm scripts
 
 - `npm run build` : Build the project
-- `npm run start` : Build the project (with live compiltation) and run the examples on <http://localhost:8080/examples>
+- `npm run start` : Build the project (with live compilation) and run the examples on <http://localhost:8080/examples>
 - `npm run test` : Run the unit tests of the project
 - `npm run e2e:test` : Run the e2e tests of the project
 - `npm run e2e:generate` : Generate the reference screenshots for the e2e tests.
