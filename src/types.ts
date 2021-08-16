@@ -54,7 +54,7 @@ export const SERVER_CAPABILITIES_DEFAULT: ServerCapabilities = {
   rotation: false,
   mirroring: false,
   tileSize: null,
-  minZoom: 0,
+  minZoom: -2,
   maxZoom: 0,
 };
 

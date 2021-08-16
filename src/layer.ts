@@ -75,11 +75,11 @@ export class IIIFLayer extends TileLayer {
                   DEFAULT_OPTIONS,
                   // Server pref
                   {
-                    tileSize: this.server.tileSize,
-                    tileFormat: this.server.formats[0],
-                    quality: this.server.qualities.includes("native") ? "native" : "default",
-                    minZoom: this.server.minZoom,
-                    maxZoom: this.server.maxZoom,
+                    tileSize: this.server.tileSize || DEFAULT_OPTIONS.tileSize,
+                    tileFormat: this.server.formats[0] || DEFAULT_OPTIONS.tileFormat,
+                    quality: this.server.qualities && this.server.qualities.includes("native") ? "native" : "default",
+                    minZoom: this.server.minZoom || DEFAULT_OPTIONS.minZoom,
+                    maxZoom: this.server.maxZoom || DEFAULT_OPTIONS.maxZoom,
                   },
                   // User's options
                   options,
@@ -87,9 +87,9 @@ export class IIIFLayer extends TileLayer {
               );
               resolve();
             })
-            .catch((e: Error) => reject(e));
+            .catch((e: Error) => reject(`Fail to fetch url ${url} : ${e}`));
         })
-        .catch((e: Error) => reject(e));
+        .catch((e: Error) => reject(`Fail to fetch url ${url} : ${e}`));
     });
     return this;
   }
