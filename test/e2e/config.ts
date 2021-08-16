@@ -17,7 +17,7 @@ export const tests: Tests = [
       // waiting for images
       await page.waitForSelector("img.leaflet-tile-loaded");
     },
-    waitFor: 1000,
+    waitFor: 2000,
   },
   {
     name: "quality",
@@ -44,7 +44,7 @@ export const tests: Tests = [
         });
       });
     },
-    waitFor: 1000,
+    waitFor: 2000,
   },
   {
     name: "rotation",
@@ -56,7 +56,7 @@ export const tests: Tests = [
       await page.waitForSelector("#map180 img.leaflet-tile-loaded");
       await page.waitForSelector("#map270 img.leaflet-tile-loaded");
     },
-    waitFor: 1000,
+    waitFor: 2000,
   },
   {
     name: "rotation-mirror",
@@ -89,6 +89,6 @@ export const tests: Tests = [
         );
       });
     },
-    waitFor: 1000,
+    waitFor: 2000,
   },
 ];

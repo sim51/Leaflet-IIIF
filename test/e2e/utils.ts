@@ -38,7 +38,7 @@ export async function takeScreenshots(tests: Tests, folder: string, suffix = "")
             try {
               await page.goto(test.url);
             } catch (e) {
-              reject(e);
+              reject(`Failed to load page ${test.url} : ${e}`);
             }
 
             // Run scenario
@@ -48,13 +48,12 @@ export async function takeScreenshots(tests: Tests, folder: string, suffix = "")
                   test.scenario(browser, page),
                   new Promise((_resolve, reject) => {
                     setTimeout(() => {
-                      console.log("scenario timeout");
-                      reject();
+                      reject("scenario timeout");
                     }, 5000);
                   }),
                 ]);
               } catch (e) {
-                console.log("reject scenario");
+                console.log("reject scenario", e);
                 reject(e);
               }
             }
@@ -68,11 +67,11 @@ export async function takeScreenshots(tests: Tests, folder: string, suffix = "")
                 console.log(`${test.url} saved in ${test.name}.${suffix}.png`);
                 resolve();
               } catch (e) {
-                reject(e);
+                reject(`Failed to take screenshot for ${test.name}`);
               }
             }, test.waitFor || 0);
           } catch (e) {
-            reject(e);
+            reject(`Test ${test.name} fails with : ${e}`);
           }
         });
       }),
