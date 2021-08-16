@@ -54,7 +54,7 @@ export const SERVER_CAPABILITIES_DEFAULT: ServerCapabilities = {
   rotation: false,
   mirroring: false,
   tileSize: null,
-  minZoom: 0,
+  minZoom: -2,
   maxZoom: 0,
 };
 
@@ -121,8 +121,8 @@ export const DEFAULT_OPTIONS: IIIFLayerOptions = {
   mirroring: false,
   fitBounds: true,
   setMaxBounds: false,
-  minZoom: -2,
-  maxZoom: 2,
+  minZoom: 0,
+  maxZoom: 0,
   zoomOffset: 0,
 };
 
