@@ -17,7 +17,7 @@ export const tests: Tests = [
       // waiting for images
       await page.waitForSelector("img.leaflet-tile-loaded");
     },
-    waitFor: 2000,
+    waitFor: 1000,
   },
   {
     name: "quality",
@@ -44,7 +44,7 @@ export const tests: Tests = [
         });
       });
     },
-    waitFor: 2000,
+    waitFor: 1000,
   },
   {
     name: "rotation",
@@ -56,7 +56,7 @@ export const tests: Tests = [
       await page.waitForSelector("#map180 img.leaflet-tile-loaded");
       await page.waitForSelector("#map270 img.leaflet-tile-loaded");
     },
-    waitFor: 2000,
+    waitFor: 1000,
   },
   {
     name: "rotation-mirror",
@@ -74,12 +74,9 @@ export const tests: Tests = [
           maps.map(map => {
             return new Promise<void>(resolve => {
               map.eachLayer(l =>
-                l.on("loading", () => {
-                  console.log("rotation-mirror - loading");
-                  l.on("load", () => {
-                    console.log("rotation-mirror - load");
-                    resolve();
-                  });
+                l.on("load", () => {
+                  console.log("rotation-mirror - load");
+                  resolve();
                 }),
               );
               console.log("rotation-mirror - Fire");
@@ -89,6 +86,6 @@ export const tests: Tests = [
         );
       });
     },
-    waitFor: 2000,
+    waitFor: 1000,
   },
 ];

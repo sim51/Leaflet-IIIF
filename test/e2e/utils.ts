@@ -49,11 +49,11 @@ export async function takeScreenshots(tests: Tests, folder: string, suffix = "")
                   new Promise((_resolve, reject) => {
                     setTimeout(() => {
                       reject("scenario timeout");
-                    }, 5000);
+                    }, 10000);
                   }),
                 ]);
               } catch (e) {
-                console.log("reject scenario", e);
+                console.log(`reject scenario for ${test.name}`, e);
                 reject(e);
               }
             }
