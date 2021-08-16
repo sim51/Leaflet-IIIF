@@ -31,12 +31,9 @@ export const tests: Tests = [
         const map = ((window as unknown) as { map: Map }).map;
         return new Promise<void>(resolve => {
           map.eachLayer(l =>
-            l.on("loading", () => {
-              console.log("quality - loading");
-              l.on("load", () => {
-                console.log("quality - load");
-                resolve();
-              });
+            l.on("load", () => {
+              console.log("quality - load");
+              resolve();
             }),
           );
           console.log("quality - Fire");
