@@ -174,13 +174,21 @@ export class IIIFLayer extends TileLayer {
       maxX = this.width - maxX + diffX;
     }
 
+    // some servers only accept w, format as for instancce biiif generator: https://github.com/IIIF-Commons/biiif.
+    // This size format should be configured based on the image profile spec https://iiif.io/api/image/2.1/#profile-description
+    // But this lib does not support this yet so making hard coded workaround for now.
+    let size: [number, number] | [number, ""] = [Math.abs(maxX - minX), Math.abs(maxY - minY)].map((s) =>
+      Math.ceil(s * zoomLayer.scale),
+    ) as [number, number];
+    if (size[0] === size[1]) size = [size[0], ""];
+
     const params = {
       format: this.options.tileFormat,
       quality: this.options.quality,
       mirroring: this.options.mirroring,
       region: [minX, minY, Math.abs(maxX - minX), Math.abs(maxY - minY)],
       rotation: (360 - this.options.rotation) % 360,
-      size: [Math.abs(maxX - minX), Math.abs(maxY - minY)].map(s => Math.ceil(s * zoomLayer.scale)) as [number, number],
+      size,
     };
 
     return L.Util.template(this._url, {
