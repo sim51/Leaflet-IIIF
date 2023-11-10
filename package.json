@@ -1,6 +1,6 @@
 {
   "name": "ow-leaflet-iiif",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A Leaflet plugin for viewing IIIF sources",
   "main": "./lib/umd/leaflet-iiif.min.js",
   "typings": "./lib/esm/index.d.ts",
